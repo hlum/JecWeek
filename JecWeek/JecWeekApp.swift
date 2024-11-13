@@ -11,7 +11,7 @@ import SwiftUI
 struct JecWeekApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
     }
 }
