@@ -7,17 +7,20 @@
 
 import Foundation
 
-struct NFCData: Identifiable,Codable {
-    let id = UUID()
-    let buildingNo: Int
+struct NFCData:Identifiable,Codable {
+    let id :UUID
+    let buildingNo:Int
+    let images:[String]
     let buildingName:String
+    let adress : String
     let date:Date
-    
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case buildingNo = "building_no"
         case buildingName = "building_name"
         case date = "date"
+        case adress = "adress"
+        case images = "images"
     }
 }
