@@ -15,7 +15,6 @@ final class NFCManager: NSObject ,NFCNDEFReaderSessionDelegate{
     
     func readerSession(_ session: NFCNDEFReaderSession, didInvalidateWithError error: any Error) {
         print("NFC READER ERROR: \(error)")
-        onCardDataUpdate?(nil,error)
     }
     
     
@@ -46,8 +45,25 @@ final class NFCManager: NSObject ,NFCNDEFReaderSessionDelegate{
     
     func decodeRecordToNFCData(from data:Data)throws->NFCData?{
         let decoder = JSONDecoder()
-        let nfcData = try decoder.decode(NFCData.self, from: data)
-        return nfcData
+        decoder.dateDecodingStrategy = .iso8601
+        do {
+            let nfcData =  try decoder.decode(NFCData.self, from: data)
+            return nfcData
+        } catch let DecodingError.dataCorrupted(context) {
+            print(context)
+        } catch let DecodingError.keyNotFound(key, context) {
+            print("Key '\(key)' not found:", context.debugDescription)
+            print("codingPath:", context.codingPath)
+        } catch let DecodingError.valueNotFound(value, context) {
+            print("Value '\(value)' not found:", context.debugDescription)
+            print("codingPath:", context.codingPath)
+        } catch let DecodingError.typeMismatch(type, context)  {
+            print("Type '\(type)' mismatch:", context.debugDescription)
+            print("codingPath:", context.codingPath)
+        } catch {
+            print("error: ", error)
+        }
+        return nil
     }
     
     func scan(){
