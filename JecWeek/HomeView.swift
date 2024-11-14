@@ -27,7 +27,9 @@ final class HomeViewModel:ObservableObject{
                 }
                 return
             }
-            self?.nfcData = data
+            DispatchQueue.main.async{
+                self?.nfcData = data
+            }
         }
     }
     
@@ -64,6 +66,9 @@ struct HomeView: View {
                 }
                 .padding()
             }
+            .alert(isPresented: $vm.showAlert, content: {
+                Alert(title: Text(vm.alertTitle))
+            })
         }
     }
 
