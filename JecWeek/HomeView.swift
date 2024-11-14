@@ -8,29 +8,14 @@
 import SwiftUI
 
 final class HomeViewModel:ObservableObject{
-    @Published var nfcData:NFCData?
+    @Published var nfcData:[NFCData] = []
     @Published var showAlert:Bool = false
     @Published var alertTitle:String = ""
     
     private let nfcManager = NFCManager()
     
     init() {
-        nfcManager.onCardDataUpdate = { [weak self] data,error in
-            if let error = error{
-                Task{
-                    await self?.showAlertTitle(alertTitle: error.localizedDescription)
-                }
-            }
-            guard let data = data else {
-                Task{
-                    await self?.showAlertTitle(alertTitle: "No data found")
-                }
-                return
-            }
-            DispatchQueue.main.async{
-                self?.nfcData = data
-            }
-        }
+        self.nfcData = JsonFileReader.shared.loadPlaceData() ?? []
     }
     
     @MainActor
@@ -46,6 +31,7 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    @State var tabSelection = 0
     @ObservedObject var vm = HomeViewModel()
         var body: some View {
             ZStack(alignment:.center){
@@ -55,10 +41,14 @@ struct HomeView: View {
                     titleView
 
                     Spacer()
-                    
-                    if let nfcData = vm.nfcData{
-                        cardView(for: nfcData)
+                    TabView(selection: $tabSelection) {
+                        ForEach(vm.nfcData.indices, id: \.self) { index in
+                            cardView(for: vm.nfcData[index])
+                                .tag(index) // Set the tag to the current index
+                        }
                     }
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+                    
                     Spacer()
                     
                     scanButton
@@ -114,23 +104,25 @@ extension HomeView{
                 .shadow(color: CustomColors.shadowColor,radius: 10,x:10,y:10)
 
             VStack{
-                AsyncImage(url: URL(string:vm.nfcData?.images[0] ?? "")) { image in
+                AsyncImage(url: URL(string: nfcData.images[0])) { image in
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                        .frame(width: 100, height: 100)
+                        .frame(width: 250, height: 150)
+                        .padding(10)
                 } placeholder: {
                     Image(systemName: "person.fill")
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .frame(width: 100, height: 100)
+                        .padding(10)
                 }
                 .padding(.bottom,40)
                 
                 VStack(alignment:.leading){
-                    Text(vm.nfcData?.buildingName ?? "")
+                    Text(nfcData.buildingName)
                         .font(.system(size: 24, weight: .bold))
-                    Text("\(vm.nfcData?.adress ?? "")")
+                    Text("\(nfcData.adress)")
                         .font(.system(size: 13, weight: .medium))
                     Text("モバイルアプリケーション開発科")
                         .font(.system(size: 13, weight: .medium))
