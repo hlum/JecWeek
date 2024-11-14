@@ -67,6 +67,8 @@ struct HomeView: View {
         }
     }
 
+
+
 //MARK: VIEWS
 extension HomeView{
         private var backgroundView:some View{
