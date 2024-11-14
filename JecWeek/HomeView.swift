@@ -114,7 +114,7 @@ extension HomeView{
                 .shadow(color: CustomColors.shadowColor,radius: 10,x:10,y:10)
 
             VStack{
-                AsyncImage(url: URL(string: "https://www.japanese-specialty-school.com/images/logo.png")) { image in
+                AsyncImage(url: URL(string:vm.nfcData?.images[0] ?? "")) { image in
                     image
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -128,9 +128,9 @@ extension HomeView{
                 .padding(.bottom,40)
                 
                 VStack(alignment:.leading){
-                    Text("ラワンアウンピョウ")
+                    Text(vm.nfcData?.buildingName ?? "")
                         .font(.system(size: 24, weight: .bold))
-                    Text("24CM0138")
+                    Text("\(vm.nfcData?.adress ?? "")")
                         .font(.system(size: 13, weight: .medium))
                     Text("モバイルアプリケーション開発科")
                         .font(.system(size: 13, weight: .medium))
