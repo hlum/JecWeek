@@ -63,6 +63,7 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    @State var showDetailSheet:Bool = false
     @State var tabSelection = 0
     @ObservedObject var vm = HomeViewModel()
         var body: some View {
@@ -75,8 +76,14 @@ struct HomeView: View {
                     Spacer()
                     TabView(selection: $tabSelection) {
                         ForEach(vm.nfcData.indices, id: \.self) { index in
-                            cardView(for: vm.nfcData[index])
-                                .tag(index) // Set the tag to the current index
+                            Button {
+                                showDetailSheet.toggle()
+                            } label: {
+                                cardView(for: vm.nfcData[index])
+                                    .tag(index) // Set the tag to the current index
+                            }
+                            .foregroundStyle(checkUserHasTag(tag: vm.nfcData[index]) ? Color.black : Color.gray)
+                            .disabled(!checkUserHasTag(tag: vm.nfcData[index]))
                         }
                     }
                     .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
@@ -86,10 +93,12 @@ struct HomeView: View {
                     scanButton
 
                 }
-                .padding()
             }
             .alert(isPresented: $vm.showAlert, content: {
                 Alert(title: Text(vm.alertTitle))
+            })
+            .sheet(isPresented: $showDetailSheet, content: {
+                EmptyView()
             })
         }
     }
@@ -114,7 +123,7 @@ extension HomeView{
                 Text("取得したタッグ")
                     .font(.system(size: 19, weight: .thin))
             }
-            .padding(.leading,10)
+            .padding(20)
             Spacer()
             Button {
                 print("Menu")
@@ -123,7 +132,7 @@ extension HomeView{
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 40, height: 40)
-                    .padding(.trailing)
+                    .padding(20)
             }
         }
     }
