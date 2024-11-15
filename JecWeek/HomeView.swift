@@ -63,6 +63,7 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    @State var selectedCardIndex:Int = 0
     @State var showDetailSheet:Bool = false
     @State var tabSelection = 0
     @ObservedObject var vm = HomeViewModel()
@@ -81,7 +82,7 @@ struct HomeView: View {
                             } label: {
                                 cardView(for: vm.nfcData[index])
                                     .tag(index) // Set the tag to the current index
-                            }
+                                                                }
                             .foregroundStyle(checkUserHasTag(tag: vm.nfcData[index]) ? Color.black : Color.gray)
                             .disabled(!checkUserHasTag(tag: vm.nfcData[index]))
                         }
@@ -97,9 +98,14 @@ struct HomeView: View {
             .alert(isPresented: $vm.showAlert, content: {
                 Alert(title: Text(vm.alertTitle))
             })
-            .sheet(isPresented: $showDetailSheet, content: {
-                EmptyView()
+            .onChange(of:tabSelection, { _, newValue in
+                selectedCardIndex = tabSelection
             })
+            .sheet(isPresented: $showDetailSheet, content: {
+                DetailSheetView(placeData: vm.nfcData[selectedCardIndex], showDetailSheet: $showDetailSheet)
+            })
+
+            
         }
     }
 
