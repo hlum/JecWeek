@@ -7,36 +7,53 @@
 
 import SwiftUI
 
+final class MockDataProvider{
+    static let shared = MockDataProvider()
+    var gotTag:[NFCData] = [
+        NFCData(
+            id: UUID(
+                uuidString: "7E4F768A-9E11-45EB-9D94-3C3BB7C4C2A4"
+            ) ?? UUID(),
+            buildingNo: 0,
+            images: [
+                "https://image.minkou.jp/images/school_img/21642/750_6831ae617fac95d66ee485fd6f84dcbf20fb30b7.jpg",
+                "https://s3-ap-northeast-1.amazonaws.com/license-shinronavi/images/6217/midium.jpg",
+                "https://fastly.4sqi.net/img/general/600x600/499674011_JFEz9JKbTXSeloXXXcE9oY-QmkhYy0R5ztNXyfoRDBY.jpg"
+            ],
+            buildingName: "本館",
+            adress: "東京都新宿区百人町１丁目２５−４",
+            date: ISO8601DateFormatter().date(
+                from: "2024-11-14T00:00:00Z"
+            ) ?? Date()
+            )    ]
+    
+    
+    func getTags() -> [NFCData] {
+        return gotTag
+    }
+}
+
 final class HomeViewModel:ObservableObject{
-    @Published var nfcData:NFCData?
+    @Published var nfcData:[NFCData] = []
     @Published var showAlert:Bool = false
     @Published var alertTitle:String = ""
+    @Published var userTag:[NFCData] = []
     
     private let nfcManager = NFCManager()
     
     init() {
-        nfcManager.onCardDataUpdate = { [weak self] data,error in
-            if let error = error{
-                Task{
-                    await self?.showAlertTitle(alertTitle: error.localizedDescription)
-                }
-            }
-            guard let data = data else {
-                Task{
-                    await self?.showAlertTitle(alertTitle: "No data found")
-                }
-                return
-            }
-            DispatchQueue.main.async{
-                self?.nfcData = data
-            }
-        }
+        self.getUserTag()
+        self.nfcData = JsonFileReader.shared.loadPlaceData() ?? []
     }
     
     @MainActor
     func showAlertTitle(alertTitle:String){
         showAlert = true
         self.alertTitle = alertTitle
+    }
+    
+    func getUserTag(){
+        userTag = MockDataProvider.shared.getTags()
     }
     
     func scan(){
@@ -46,6 +63,9 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    @State var selectedCardIndex:Int = 0
+    @State var showDetailSheet:Bool = false
+    @State var tabSelection = 0
     @ObservedObject var vm = HomeViewModel()
         var body: some View {
             ZStack(alignment:.center){
@@ -55,20 +75,37 @@ struct HomeView: View {
                     titleView
 
                     Spacer()
-                    
-                    if let nfcData = vm.nfcData{
-                        cardView(for: nfcData)
+                    TabView(selection: $tabSelection) {
+                        ForEach(vm.nfcData.indices, id: \.self) { index in
+                            Button {
+                                showDetailSheet.toggle()
+                            } label: {
+                                cardView(for: vm.nfcData[index])
+                                    .tag(index) // Set the tag to the current index
+                                                                }
+                            .foregroundStyle(checkUserHasTag(tag: vm.nfcData[index]) ? Color.black : Color.gray)
+                            .disabled(!checkUserHasTag(tag: vm.nfcData[index]))
+                        }
                     }
+                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+                    
                     Spacer()
                     
                     scanButton
 
                 }
-                .padding()
             }
             .alert(isPresented: $vm.showAlert, content: {
                 Alert(title: Text(vm.alertTitle))
             })
+            .onChange(of:tabSelection, { _, newValue in
+                selectedCardIndex = tabSelection
+            })
+            .sheet(isPresented: $showDetailSheet, content: {
+                DetailSheetView(placeData: vm.nfcData[selectedCardIndex], showDetailSheet: $showDetailSheet)
+            })
+
+            
         }
     }
 
@@ -92,7 +129,7 @@ extension HomeView{
                 Text("取得したタッグ")
                     .font(.system(size: 19, weight: .thin))
             }
-            .padding(.leading,10)
+            .padding(20)
             Spacer()
             Button {
                 print("Menu")
@@ -101,7 +138,7 @@ extension HomeView{
                     .resizable()
                     .aspectRatio(contentMode: .fit)
                     .frame(width: 40, height: 40)
-                    .padding(.trailing)
+                    .padding(20)
             }
         }
     }
@@ -109,31 +146,44 @@ extension HomeView{
     private func cardView(for nfcData:NFCData)->some View{
         ZStack{
             RoundedRectangle(cornerRadius: 20)
-                .fill(CustomColors.lightGray)
+                .fill(.thinMaterial)
                 .frame(width:300,height:450)
-                .shadow(color: CustomColors.shadowColor,radius: 10,x:10,y:10)
+                .shadow(color: CustomColors.shadowColor,radius: 16,x:1,y:1)
 
             VStack{
-                AsyncImage(url: URL(string: "https://www.japanese-specialty-school.com/images/logo.png")) { image in
-                    image
+                if !checkUserHasTag(tag: nfcData){
+                    Image(.lock)
                         .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 100, height: 100)
-                } placeholder: {
-                    Image(systemName: "person.fill")
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 100, height: 100)
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 130, height: 130)
+                        .shadow(radius: 10,x:10,y:10)
+                        .padding(10)
+                }else{
+                    AsyncImage(url: URL(string: nfcData.images[0])){
+                        image in
+                        image
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 150, height: 150)
+                            .cornerRadius(10)
+                            .shadow(radius: 10,x:10,y:10)
+                            .padding(10)
+                    } placeholder: {
+                        ProgressView()
+                    }
                 }
-                .padding(.bottom,40)
                 
                 VStack(alignment:.leading){
-                    Text("ラワンアウンピョウ")
-                        .font(.system(size: 24, weight: .bold))
-                    Text("24CM0138")
-                        .font(.system(size: 13, weight: .medium))
-                    Text("モバイルアプリケーション開発科")
-                        .font(.system(size: 13, weight: .medium))
+                    Text(nfcData.buildingName)
+                        .font(.system(size: 40, weight: .bold))
+                    Text("\(nfcData.adress)")
+                        .font(.system(size:16, weight: .medium))
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(.black)
+                        .frame(width:200,height: 1)
+                    
+                    Text(nfcData.date,style: .date)
+                        .font(.system(size: 16, weight: .medium))
 
                 }
                 .padding(.bottom,150)
@@ -141,7 +191,6 @@ extension HomeView{
                 
 
             }
-
         }
     }
     
@@ -164,6 +213,13 @@ extension HomeView{
             .cornerRadius(10)
             .shadow(color: CustomColors.shadowColor,radius: 4,x:1,y:1)
         }
+    }
+}
+
+
+extension HomeView{
+    private func checkUserHasTag(tag:NFCData)->Bool{
+        vm.userTag.contains(where: { $0.id == tag.id })
     }
 }
 #Preview {
