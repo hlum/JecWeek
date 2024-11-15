@@ -83,7 +83,7 @@ extension DetailSheetView{
         
     private var backButton : some View{
         Button {
-            showDetailSheet = false
+            showDetailSheet.toggle()
         } label: {
             Image(systemName:"xmark")
                 .font(.headline)
@@ -102,7 +102,7 @@ extension DetailSheetView{
 #Preview {
     DetailSheetView(
         placeData:
-            NFCData(
+                NFCData(
                 id: UUID(
                     uuidString: "7E4F768A-9E11-45EB-9D94-3C3BB7C4C2A4"
                 ) ?? UUID(),
