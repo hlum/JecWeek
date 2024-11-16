@@ -50,5 +50,11 @@ final class AuthenticationManager{
         Auth.auth().currentUser != nil
     }
     
+    func getUserData()->AuthDataResultModel?{
+        guard let user = Auth.auth().currentUser else{
+            return nil
+        }
+        return AuthDataResultModel(user: user)
+    }
     
 }

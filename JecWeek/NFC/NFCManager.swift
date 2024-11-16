@@ -9,7 +9,7 @@ import Foundation
 import CoreNFC
 
 final class NFCManager: NSObject ,NFCNDEFReaderSessionDelegate{
-    var onCardDataUpdate: ((NFCData?,Error?) -> Void)?
+    var onCardDataUpdate: ((JsonDataModel?,Error?) -> Void)?
     private var readerSession:NFCNDEFReaderSession?
     
     
@@ -30,9 +30,9 @@ final class NFCManager: NSObject ,NFCNDEFReaderSessionDelegate{
         }
     }
     
-    private func processNFCNDEFMessage(message:NFCNDEFMessage)throws -> NFCData?{
+    private func processNFCNDEFMessage(message:NFCNDEFMessage)throws -> JsonDataModel?{
         let records = message.records
-        var nfcData:NFCData?
+        var nfcData:JsonDataModel?
         for record in records{
             guard record.typeNameFormat == .media else{
                 print("Record type is not supported")
@@ -43,11 +43,11 @@ final class NFCManager: NSObject ,NFCNDEFReaderSessionDelegate{
         return nfcData
     }
     
-    func decodeRecordToNFCData(from data:Data)throws->NFCData?{
+    func decodeRecordToNFCData(from data:Data)throws->JsonDataModel?{
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .iso8601
         do {
-            let nfcData =  try decoder.decode(NFCData.self, from: data)
+            let nfcData =  try decoder.decode(JsonDataModel.self, from: data)
             return nfcData
         } catch let DecodingError.dataCorrupted(context) {
             print(context)

@@ -9,8 +9,8 @@ import SwiftUI
 
 final class MockDataProvider{
     static let shared = MockDataProvider()
-    var gotTag:[NFCData] = [
-        NFCData(
+    var gotTag:[JsonDataModel] = [
+        JsonDataModel(
             id: UUID(
                 uuidString: "7E4F768A-9E11-45EB-9D94-3C3BB7C4C2A4"
             ) ?? UUID(),
@@ -27,23 +27,29 @@ final class MockDataProvider{
             ) ?? Date()
             )    ]
     
-    
-    func getTags() -> [NFCData] {
+    func getTags() -> [JsonDataModel] {
         return gotTag
     }
 }
 
 final class HomeViewModel:ObservableObject{
-    @Published var nfcData:[NFCData] = []
+    @Published var nfcData:[JsonDataModel] = []
     @Published var showAlert:Bool = false
     @Published var alertTitle:String = ""
-    @Published var userTag:[NFCData] = []
+    @Published var userTag:[JsonDataModel] = []
+    @Published var userData:AuthDataResultModel? = nil
     
     private let nfcManager = NFCManager()
     
     init() {
         self.getUserTag()
         self.nfcData = JsonFileReader.shared.loadPlaceData() ?? []
+    }
+    
+    
+    func getUserData(){
+        userData = AuthenticationManager.shared.getUserData()
+        dump(userData)
     }
     
     @MainActor
@@ -87,7 +93,8 @@ struct HomeView: View {
                             } label: {
                                 cardView(for: vm.nfcData[index])
                                     .tag(index) // Set the tag to the current index
-                                                                }
+                                
+                            }
                             .foregroundStyle(checkUserHasTag(tag: vm.nfcData[index]) ? Color.black : Color.gray)
                             .disabled(!checkUserHasTag(tag: vm.nfcData[index]))
                         }
@@ -101,8 +108,8 @@ struct HomeView: View {
             }
             .onAppear{
                 //check the user is login or not
-                print(vm.userIsLogin())
                 userIsNotLogIn = !vm.userIsLogin()
+                vm.getUserData()
             }
             .alert(isPresented: $vm.showAlert, content: {
                 Alert(title: Text(vm.alertTitle))
@@ -116,9 +123,6 @@ struct HomeView: View {
             .fullScreenCover(isPresented: $userIsNotLogIn, content: {
                 LoginPage(userIsNotLogIn: $userIsNotLogIn)
             })
-
-
-            
         }
     }
 
@@ -156,7 +160,7 @@ extension HomeView{
         }
     }
     
-    private func cardView(for nfcData:NFCData)->some View{
+    private func cardView(for nfcData:JsonDataModel)->some View{
         ZStack{
             RoundedRectangle(cornerRadius: 20)
                 .fill(.thinMaterial)
@@ -231,7 +235,7 @@ extension HomeView{
 
 
 extension HomeView{
-    private func checkUserHasTag(tag:NFCData)->Bool{
+    private func checkUserHasTag(tag:JsonDataModel)->Bool{
         vm.userTag.contains(where: { $0.id == tag.id })
     }
 }
