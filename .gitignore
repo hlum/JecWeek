@@ -1,0 +1,53 @@
+# Xcode project files
+*.xcworkspace
+*.xcuserdata
+*.xcodeproj/project.xcworkspace
+*.xcodeproj/xcuserdata
+*.xcodeproj/project.xcsettings
+
+# Build files
+DerivedData/
+build/
+
+# Logs
+*.log
+
+# Swift Package Manager
+.swiftpm
+Package.resolved
+Packages/
+*.xcodeproj/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Carthage
+Carthage/
+
+# Firebase
+GoogleService-Info.plist
+firebase-debug.log
+
+# General IDE files
+.DS_Store
+*.swp
+*.swo
+*.orig
+*~
+
+# Personal settings and configurations
+*.xcuserstate
+*.moved-aside
+
+# Fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/
+fastlane/test_output/
+
+# Any environment files
+.env
+
+# Temporary files
+*.tmp
