@@ -7,7 +7,40 @@
 
 import SwiftUI
 
+
+final class LoginPageViewModel:ObservableObject{
+    @Published var showAlert : Bool = false
+    @Published var alertTitle : String = ""
+    
+    func signInWithGoogle()async{
+        
+        let helper = SignInGoogleHelper()
+        
+        do {
+            let tokens = try await helper.signIn()
+            
+            try await AuthenticationManager.shared.signInWithGoogle(tokens: tokens)
+        } catch {
+            print(error.localizedDescription)
+            await showAlertTitle(alertTitle: error.localizedDescription)
+        }
+    }
+    
+    
+    func userIsLogin()->Bool{
+        AuthenticationManager.shared.userIsLogin()
+    }
+    
+    @MainActor
+    private func showAlertTitle(alertTitle:String){
+        self.showAlert = true
+        self.alertTitle = alertTitle
+    }
+}
+
 struct LoginPage: View {
+    @Binding var userIsNotLogIn:Bool
+    @StateObject var vm = LoginPageViewModel()
     var body: some View {
         ZStack{
             CustomColors.backgroundColor.ignoresSafeArea()
@@ -35,7 +68,11 @@ struct LoginPage: View {
                 Spacer()
                 
                 Button {
-                    
+                    Task{
+                        await vm.signInWithGoogle()
+                        userIsNotLogIn = !vm.userIsLogin()
+                        print(vm.userIsLogin())
+                    }
                 } label: {
                     Text("Login")
                         .font(.title)
@@ -54,9 +91,12 @@ struct LoginPage: View {
                 
             }
         }
+        .alert(isPresented: $vm.showAlert, content: {
+            Alert(title: Text(vm.alertTitle))
+        })
     }
 }
 
 #Preview {
-    LoginPage()
+    LoginPage(userIsNotLogIn: .constant(true))
 }

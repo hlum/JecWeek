@@ -59,10 +59,15 @@ final class HomeViewModel:ObservableObject{
     func scan(){
         nfcManager.scan()
     }
+    
+    func userIsLogin()->Bool{
+        AuthenticationManager.shared.userIsLogin()
+    }
 }
 
 //MARK: HomeView
 struct HomeView: View {
+    @State var userIsNotLogIn = true
     @State var selectedCardIndex:Int = 0
     @State var showDetailSheet:Bool = false
     @State var tabSelection = 0
@@ -92,8 +97,12 @@ struct HomeView: View {
                     Spacer()
                     
                     scanButton
-
                 }
+            }
+            .onAppear{
+                //check the user is login or not
+                print(vm.userIsLogin())
+                userIsNotLogIn = !vm.userIsLogin()
             }
             .alert(isPresented: $vm.showAlert, content: {
                 Alert(title: Text(vm.alertTitle))
@@ -104,6 +113,10 @@ struct HomeView: View {
             .sheet(isPresented: $showDetailSheet, content: {
                 DetailSheetView(placeData: vm.nfcData[selectedCardIndex], showDetailSheet: $showDetailSheet)
             })
+            .fullScreenCover(isPresented: $userIsNotLogIn, content: {
+                LoginPage(userIsNotLogIn: $userIsNotLogIn)
+            })
+
 
             
         }

@@ -41,11 +41,14 @@ final class AuthenticationManager{
         return try await signInWithCredential(credential: credential)
     }
     
-    func signInWithCredential(credential:AuthCredential)async throws->AuthDataResultModel{
+    private func signInWithCredential(credential:AuthCredential)async throws->AuthDataResultModel{
         let authDataResult = try await Auth.auth().signIn(with: credential)
         return AuthDataResultModel(user: authDataResult.user)
     }
     
+    func userIsLogin()->Bool{
+        Auth.auth().currentUser != nil
+    }
     
     
 }
