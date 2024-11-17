@@ -25,7 +25,7 @@ final class MockDataProvider{
             date: ISO8601DateFormatter().date(
                 from: "2024-11-14T00:00:00Z"
             ) ?? Date()
-            )    ]
+        )    ]
     
     func getTags() -> [JsonDataModel] {
         return gotTag
@@ -33,17 +33,31 @@ final class MockDataProvider{
 }
 
 final class HomeViewModel:ObservableObject{
-    @Published var nfcData:[JsonDataModel] = []
+    @Published var cards:[JsonDataModel] = []
     @Published var showAlert:Bool = false
     @Published var alertTitle:String = ""
     @Published var userTag:[JsonDataModel] = []
     @Published var userData:AuthDataResultModel? = nil
+    private let nfcManager:NFCManager = NFCManager()
     
-    private let nfcManager = NFCManager()
     
     init() {
         self.getUserTag()
-        self.nfcData = JsonFileReader.shared.loadPlaceData() ?? []
+        self.cards = JsonFileReader.shared.loadPlaceData() ?? []
+        nfcManager.onCardDataUpdate = { [weak self] data,error in
+            if let error = error{
+                Task{
+                    await self?.showAlertTitle(alertTitle: error.localizedDescription)
+                }
+            }
+            guard let data = data else {
+                Task{
+                    await self?.showAlertTitle(alertTitle: "No data found")
+                }
+                return
+            }
+            dump(data)
+        }
     }
     
     
@@ -78,66 +92,66 @@ struct HomeView: View {
     @State var showDetailSheet:Bool = false
     @State var tabSelection = 0
     @ObservedObject var vm = HomeViewModel()
-        var body: some View {
-            ZStack(alignment:.center){
-                CustomColors.backgroundColor.ignoresSafeArea()
-                backgroundView
-                VStack {
-                    titleView
-
-                    Spacer()
-                    TabView(selection: $tabSelection) {
-                        ForEach(vm.nfcData.indices, id: \.self) { index in
-                            Button {
-                                showDetailSheet.toggle()
-                            } label: {
-                                cardView(for: vm.nfcData[index])
-                                    .tag(index) // Set the tag to the current index
-                                
-                            }
-                            .foregroundStyle(checkUserHasTag(tag: vm.nfcData[index]) ? Color.black : Color.gray)
-                            .disabled(!checkUserHasTag(tag: vm.nfcData[index]))
+    var body: some View {
+        ZStack(alignment:.center){
+            CustomColors.backgroundColor.ignoresSafeArea()
+            backgroundView
+            VStack {
+                titleView
+                
+                Spacer()
+                TabView(selection: $tabSelection) {
+                    ForEach(vm.cards.indices, id: \.self) { index in
+                        Button {
+                            showDetailSheet.toggle()
+                        } label: {
+                            cardView(for: vm.cards[index])
+                                .tag(index) // Set the tag to the current index
+                            
                         }
+                        .foregroundStyle(checkUserHasTag(tag: vm.cards[index]) ? Color.black : Color.gray)
+                        .disabled(!checkUserHasTag(tag: vm.cards[index]))
                     }
-                    .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
-                    
-                    Spacer()
-                    
-                    scanButton
                 }
+                .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
+                
+                Spacer()
+                
+                scanButton
             }
-            .onAppear{
-                //check the user is login or not
-                userIsNotLogIn = !vm.userIsLogin()
-                vm.getUserData()
-            }
-            .alert(isPresented: $vm.showAlert, content: {
-                Alert(title: Text(vm.alertTitle))
-            })
-            .onChange(of:tabSelection, { _, newValue in
-                selectedCardIndex = tabSelection
-            })
-            .sheet(isPresented: $showDetailSheet, content: {
-                DetailSheetView(placeData: vm.nfcData[selectedCardIndex], showDetailSheet: $showDetailSheet)
-            })
-            .fullScreenCover(isPresented: $userIsNotLogIn, content: {
-                LoginPage(userIsNotLogIn: $userIsNotLogIn)
-            })
         }
+        .onAppear{
+            //check the user is login or not
+            userIsNotLogIn = !vm.userIsLogin()
+            vm.getUserData()
+        }
+        .alert(isPresented: $vm.showAlert, content: {
+            Alert(title: Text(vm.alertTitle))
+        })
+        .onChange(of:tabSelection, { _, newValue in
+            selectedCardIndex = tabSelection
+        })
+        .sheet(isPresented: $showDetailSheet, content: {
+            DetailSheetView(placeData: vm.cards[selectedCardIndex], showDetailSheet: $showDetailSheet)
+        })
+        .fullScreenCover(isPresented: $userIsNotLogIn, content: {
+            LoginPage(userIsNotLogIn: $userIsNotLogIn)
+        })
     }
+}
 
 
 
 //MARK: VIEWS
 extension HomeView{
-        private var backgroundView:some View{
-            ZStack{
-                Image(.lines)
-                    .resizable()
-                    .scaledToFit()
-                    .blur(radius: 10)
-            }
+    private var backgroundView:some View{
+        ZStack{
+            Image(.lines)
+                .resizable()
+                .scaledToFit()
+                .blur(radius: 10)
         }
+    }
     private var titleView:some View{
         HStack{
             VStack(alignment:.leading){
@@ -166,7 +180,7 @@ extension HomeView{
                 .fill(.thinMaterial)
                 .frame(width:300,height:450)
                 .shadow(color: CustomColors.shadowColor,radius: 16,x:1,y:1)
-
+            
             VStack{
                 if !checkUserHasTag(tag: nfcData){
                     Image(.lock)
@@ -201,12 +215,12 @@ extension HomeView{
                     
                     Text(nfcData.date,style: .date)
                         .font(.system(size: 16, weight: .medium))
-
+                    
                 }
                 .padding(.bottom,150)
-            
                 
-
+                
+                
             }
         }
     }
