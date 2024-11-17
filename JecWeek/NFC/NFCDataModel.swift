@@ -7,6 +7,8 @@
 
 import Foundation
 
+
+//For later,created a struct instead of String
 struct NFCDataModel:Codable{
     let id : String
 }
