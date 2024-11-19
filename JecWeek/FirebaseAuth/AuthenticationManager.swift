@@ -17,7 +17,7 @@ struct GoogleSignInResultModel{
 
 
 
-struct AuthDataResultModel:Hashable{
+struct AuthDataResultModel:Hashable,Encodable{
     let uid : String
     let email : String?
     let photoURL : String?
@@ -55,6 +55,10 @@ final class AuthenticationManager{
             return nil
         }
         return AuthDataResultModel(user: user)
+    }
+    
+    func deleteUser()async throws{
+        try await Auth.auth().currentUser?.delete()
     }
     
 }

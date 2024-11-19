@@ -18,10 +18,14 @@ final class LoginPageViewModel:ObservableObject{
         
         do {
             let tokens = try await helper.signIn()
-            
-            try await AuthenticationManager.shared.signInWithGoogle(tokens: tokens)
+            let authDataResult = try await AuthenticationManager.shared.signInWithGoogle(tokens: tokens)
+            try FirestoreManger.shared
+                .storeUserDataInFirestore(
+                    userData: authDataResult
+                )
         } catch {
             print(error.localizedDescription)
+            try? await AuthenticationManager.shared.deleteUser()
             await showAlertTitle(alertTitle: error.localizedDescription)
         }
     }
