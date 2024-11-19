@@ -5,6 +5,7 @@
 //  Created by Hlwan Aung Phyo on 11/13/24.
 //
 
+
 import SwiftUI
 
 final class MockDataProvider{
@@ -44,7 +45,9 @@ final class HomeViewModel:ObservableObject{
     init() {
         self.getUserTag()
         self.cards = JsonFileReader.shared.loadPlaceData() ?? []
-        nfcManager.onCardDataUpdate = { [weak self] data,error in
+        nfcManager.onCardDataUpdate = {
+ [weak self] data,
+error in
             if let error = error{
                 Task{
                     await self?.showAlertTitle(alertTitle: error.localizedDescription)
@@ -56,7 +59,22 @@ final class HomeViewModel:ObservableObject{
                 }
                 return
             }
-            dump(data)
+            guard let userData = AuthenticationManager.shared.getUserData() else {
+                Task{
+                    await self?.showAlertTitle(alertTitle: "User not found")
+                }
+                return
+            }
+            
+            let firestoreData = DBUser(
+                uid:userData.uid ,
+                photoUrl:userData.photoURL ,
+                email: userData.photoURL,
+                cardPossessed: [data.id]
+            )
+            
+            FirestoreManger.shared
+                .updateUserCardPossession(userId: userData.uid, cardId: data.id)
         }
     }
     

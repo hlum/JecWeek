@@ -51,7 +51,7 @@ class FirestoreManger{
     }()
 
     
-    func storeUserDataInFirestoreFirstTime(userData:AuthDataResultModel)throws{
+    func storeUserDataInFirestoreFirstTime(userData:DBUser)throws{
         //check if the user data is already exist
         userDocuments(userId: userData.uid).getDocument { snapshot, error in
             if let snapshot = snapshot{
