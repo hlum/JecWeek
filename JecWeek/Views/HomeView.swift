@@ -87,6 +87,7 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    @State var showLogOutButton:Bool = false
     @State var userIsNotLogIn = true
     @State var selectedCardIndex:Int = 0
     @State var showDetailSheet:Bool = false
@@ -120,6 +121,19 @@ struct HomeView: View {
                 scanButton
             }
         }
+        .actionSheet(isPresented: $showLogOutButton, content: {
+            ActionSheet(title: Text("Log Out"),
+                        message: Text("Are you sure you want to log out?"),
+                        buttons: [
+                            .destructive(Text("Log Out"), action: {
+                                Task{
+                                    try? await AuthenticationManager.shared.logOut()
+                                    userIsNotLogIn = !vm.userIsLogin()
+                                }
+                            }),
+                            .cancel()
+                        ])
+        })
         .onAppear{
             //check the user is login or not
             userIsNotLogIn = !vm.userIsLogin()
@@ -163,7 +177,7 @@ extension HomeView{
             .padding(20)
             Spacer()
             Button {
-                print("Menu")
+                showLogOutButton.toggle()
             } label: {
                 Image(.menu)
                     .resizable()

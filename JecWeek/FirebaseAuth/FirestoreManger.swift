@@ -29,7 +29,6 @@ class FirestoreManger{
 
     
     func storeUserDataInFirestore(userData:AuthDataResultModel)throws{
-        let db = Firestore.firestore()
         try userDocuments(userId: userData.uid)
             .setData(from:userData,encoder:self.encoder)
     }

@@ -61,4 +61,7 @@ final class AuthenticationManager{
         try await Auth.auth().currentUser?.delete()
     }
     
+    func logOut()async throws{
+        try Auth.auth().signOut()
+    }
 }

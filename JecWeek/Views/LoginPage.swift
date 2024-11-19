@@ -25,6 +25,7 @@ final class LoginPageViewModel:ObservableObject{
                 )
         } catch {
             print(error.localizedDescription)
+            await showAlertTitle(alertTitle: error.localizedDescription)
             try? await AuthenticationManager.shared.deleteUser()
             await showAlertTitle(alertTitle: error.localizedDescription)
         }
