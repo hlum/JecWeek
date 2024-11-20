@@ -128,7 +128,6 @@ struct HomeView: View {
             backgroundView
             VStack {
                 titleView
-                
                 Spacer()
                 TabView(selection: $tabSelection) {
                     ForEach(vm.cards.indices, id: \.self) { index in
@@ -149,25 +148,16 @@ struct HomeView: View {
                 
                 scanButton
             }
+            
         }
-        .actionSheet(isPresented: $showLogOutButton, content: {
-            ActionSheet(title: Text("Log Out"),
-                        message: Text("Are you sure you want to log out?"),
-                        buttons: [
-                            .destructive(Text("Log Out"), action: {
-                                Task{
-                                    try? await AuthenticationManager.shared.logOut()
-                                    userIsNotLogIn = !vm.userIsLogin()
-                                }
-                            }),
-                            .cancel()
-                        ])
+        .overlay(alignment: .trailing, content: {
+            menuView
         })
-        .onAppear{
-            //check the user is login or not
-            userIsNotLogIn = !vm.userIsLogin()
-            vm.getUserData()
-        }
+//        .onAppear{
+//            //check the user is login or not
+//            userIsNotLogIn = !vm.userIsLogin()
+//            vm.getUserData()
+//        }
         .alert(isPresented: $vm.showAlert, content: {
             Alert(title: Text(vm.alertTitle))
         })
@@ -177,9 +167,9 @@ struct HomeView: View {
         .sheet(isPresented: $showDetailSheet, content: {
             DetailSheetView(placeData: vm.cards[selectedCardIndex], showDetailSheet: $showDetailSheet)
         })
-        .fullScreenCover(isPresented: $userIsNotLogIn, content: {
-            LoginPage(userIsNotLogIn: $userIsNotLogIn)
-        })
+//        .fullScreenCover(isPresented: $userIsNotLogIn, content: {
+//            LoginPage(userIsNotLogIn: $userIsNotLogIn)
+//        })
     }
 }
 
@@ -187,6 +177,37 @@ struct HomeView: View {
 
 //MARK: VIEWS
 extension HomeView{
+    private var menuView:some View{
+        VStack{
+            Text("Menu")
+                .font(.title)
+                .bold()
+                .foregroundStyle(Color.black)
+                .padding()
+                .frame(maxWidth: .infinity,alignment: .leading)
+            RoundedRectangle(cornerRadius: 10)
+                .fill(.black)
+                .frame(width:250,height: 2)
+                Button {
+                    
+                } label: {
+                    Text("マップ")
+                        .padding()
+                        .foregroundStyle(Color.white)
+                        .font(.title2)
+                        .frame(maxWidth: .infinity,alignment: .leading)
+                        .frame(height: 55)
+                        .background(.black)
+                        .cornerRadius(10)
+                }
+            Spacer()
+        }
+        .frame(width:250,height: UIScreen.main.bounds.height-100)
+        .background(.ultraThinMaterial)
+        .cornerRadius(30)
+
+
+    }
     private var backgroundView:some View{
         ZStack{
             Image(.lines)
