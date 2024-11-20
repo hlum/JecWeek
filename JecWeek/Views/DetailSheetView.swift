@@ -11,7 +11,7 @@ import SwiftUI
 import MapKit
 
 struct DetailSheetView: View {
-    var placeData:NFCData
+    var placeData:JsonDataModel
     @Binding var showDetailSheet:Bool
     
     var body: some View {
@@ -102,10 +102,8 @@ extension DetailSheetView{
 #Preview {
     DetailSheetView(
         placeData:
-                NFCData(
-                id: UUID(
-                    uuidString: "7E4F768A-9E11-45EB-9D94-3C3BB7C4C2A4"
-                ) ?? UUID(),
+                JsonDataModel(
+                id:"7E4F768A-9E11-45EB-9D94-3C3BB7C4C2A4",
                 buildingNo: 0,
                 images: [
                     "https://image.minkou.jp/images/school_img/21642/750_6831ae617fac95d66ee485fd6f84dcbf20fb30b7.jpg",

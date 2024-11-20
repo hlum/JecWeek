@@ -7,9 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		B51F58252CE4EDB8003D3C8C /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B51F58242CE4EDB8003D3C8C /* FirebaseAuth */; };
-		B51F58272CE4EDB8003D3C8C /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B51F58262CE4EDB8003D3C8C /* FirebaseFirestore */; };
-		B51F58292CE4EDB8003D3C8C /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = B51F58282CE4EDB8003D3C8C /* FirebaseStorage */; };
+		B529431D2CE7228B00515D39 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = B529431C2CE7228B00515D39 /* FirebaseAuth */; };
+		B529431F2CE7228B00515D39 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = B529431E2CE7228B00515D39 /* FirebaseFirestore */; };
+		B52943212CE7250500515D39 /* GoogleSignIn in Frameworks */ = {isa = PBXBuildFile; productRef = B52943202CE7250500515D39 /* GoogleSignIn */; };
+		B52943232CE7250500515D39 /* GoogleSignInSwift in Frameworks */ = {isa = PBXBuildFile; productRef = B52943222CE7250500515D39 /* GoogleSignInSwift */; };
 		B54BA1C22CE4C275009F2187 /* JecWeekApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = B54BA1B82CE4C275009F2187 /* JecWeekApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -18,9 +19,22 @@
 		B5893B652CE4A92400DA9B0D /* JecWeek.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = JecWeek.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		B529436B2CE72B1300515D39 /* Exceptions for "JecWeek" folder in "JecWeek" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = B5893B642CE4A92400DA9B0D /* JecWeek */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		B5893B672CE4A92400DA9B0D /* JecWeek */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				B529436B2CE72B1300515D39 /* Exceptions for "JecWeek" folder in "JecWeek" target */,
+			);
 			path = JecWeek;
 			sourceTree = "<group>";
 		};
@@ -31,20 +45,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B51F58252CE4EDB8003D3C8C /* FirebaseAuth in Frameworks */,
-				B51F58272CE4EDB8003D3C8C /* FirebaseFirestore in Frameworks */,
-				B51F58292CE4EDB8003D3C8C /* FirebaseStorage in Frameworks */,
+				B529431D2CE7228B00515D39 /* FirebaseAuth in Frameworks */,
+				B529431F2CE7228B00515D39 /* FirebaseFirestore in Frameworks */,
+				B52943212CE7250500515D39 /* GoogleSignIn in Frameworks */,
+				B52943232CE7250500515D39 /* GoogleSignInSwift in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B52943192CE71CB000515D39 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		B5893B5C2CE4A92400DA9B0D = {
 			isa = PBXGroup;
 			children = (
 				B54BA1B82CE4C275009F2187 /* JecWeekApp.swift */,
 				B5893B672CE4A92400DA9B0D /* JecWeek */,
+				B52943192CE71CB000515D39 /* Frameworks */,
 				B5893B662CE4A92400DA9B0D /* Products */,
 			);
 			sourceTree = "<group>";
@@ -77,9 +100,10 @@
 			);
 			name = JecWeek;
 			packageProductDependencies = (
-				B51F58242CE4EDB8003D3C8C /* FirebaseAuth */,
-				B51F58262CE4EDB8003D3C8C /* FirebaseFirestore */,
-				B51F58282CE4EDB8003D3C8C /* FirebaseStorage */,
+				B529431C2CE7228B00515D39 /* FirebaseAuth */,
+				B529431E2CE7228B00515D39 /* FirebaseFirestore */,
+				B52943202CE7250500515D39 /* GoogleSignIn */,
+				B52943222CE7250500515D39 /* GoogleSignInSwift */,
 			);
 			productName = JecWeek;
 			productReference = B5893B652CE4A92400DA9B0D /* JecWeek.app */;
@@ -110,7 +134,8 @@
 			mainGroup = B5893B5C2CE4A92400DA9B0D;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				B54BA1CF2CE4E570009F2187 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				B529431A2CE71CD500515D39 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */,
+				B529431B2CE7228B00515D39 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B5893B662CE4A92400DA9B0D /* Products */;
@@ -275,12 +300,14 @@
 				DEVELOPMENT_TEAM = GNG4VLAQ7U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JecWeek/Info.plist;
 				INFOPLIST_KEY_NFCReaderUsageDescription = "To Scan NFC Tag";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -306,12 +333,14 @@
 				DEVELOPMENT_TEAM = GNG4VLAQ7U;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = JecWeek/Info.plist;
 				INFOPLIST_KEY_NFCReaderUsageDescription = "To Scan NFC Tag";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -349,7 +378,15 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		B54BA1CF2CE4E570009F2187 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+		B529431A2CE71CD500515D39 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/google/GoogleSignIn-iOS";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 8.0.0;
+			};
+		};
+		B529431B2CE7228B00515D39 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
 			requirement = {
@@ -360,20 +397,25 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		B51F58242CE4EDB8003D3C8C /* FirebaseAuth */ = {
+		B529431C2CE7228B00515D39 /* FirebaseAuth */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B54BA1CF2CE4E570009F2187 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = B529431B2CE7228B00515D39 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
 		};
-		B51F58262CE4EDB8003D3C8C /* FirebaseFirestore */ = {
+		B529431E2CE7228B00515D39 /* FirebaseFirestore */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B54BA1CF2CE4E570009F2187 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			package = B529431B2CE7228B00515D39 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseFirestore;
 		};
-		B51F58282CE4EDB8003D3C8C /* FirebaseStorage */ = {
+		B52943202CE7250500515D39 /* GoogleSignIn */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = B54BA1CF2CE4E570009F2187 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseStorage;
+			package = B529431A2CE71CD500515D39 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignIn;
+		};
+		B52943222CE7250500515D39 /* GoogleSignInSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = B529431A2CE71CD500515D39 /* XCRemoteSwiftPackageReference "GoogleSignIn-iOS" */;
+			productName = GoogleSignInSwift;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

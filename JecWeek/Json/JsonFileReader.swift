@@ -8,13 +8,11 @@
 import Foundation
 
 final class JsonFileReader {
-    // Path to JSON file
+    // Path to file
     private let fileName = "placeData.json"
     static let shared = JsonFileReader()
     
-    // Method to read data from JSON file and decode it to [NFCData]
-    func loadPlaceData() -> [NFCData]? {
-        // Get the file path from the app's bundle
+    func loadPlaceData() -> [JsonDataModel]? {
         guard let fileURL = Bundle.main.url(forResource: fileName, withExtension: nil) else {
             print("File not found: \(fileName)")
             return nil
@@ -27,7 +25,7 @@ final class JsonFileReader {
             // Decode the data using JSONDecoder
             let decoder = JSONDecoder()
             decoder.dateDecodingStrategy = .iso8601
-            let placeData = try decoder.decode([NFCData].self, from: data)
+            let placeData = try decoder.decode([JsonDataModel].self, from: data)
             
             return placeData
         } catch {

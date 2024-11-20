@@ -7,8 +7,8 @@
 
 import Foundation
 
-struct NFCData:Identifiable,Codable {
-    let id :UUID
+struct JsonDataModel:Identifiable,Codable {
+    let id :String
     let buildingNo:Int
     let images:[String]
     let buildingName:String
