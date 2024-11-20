@@ -115,6 +115,7 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    
     @State var showLogOutButton:Bool = false
     @State var userIsNotLogIn = true
     @State var selectedCardIndex:Int = 0
@@ -292,7 +293,9 @@ extension HomeView{
 
 extension HomeView{
     private func checkUserHasTag(tag:JsonDataModel)->Bool{
-        vm.userCardsId.contains(where: { $0 == tag.id })
+        withAnimation(.easeInOut(duration: 10)){
+            vm.userCardsId.contains(where: { $0 == tag.id })
+        }
     }
 }
 #Preview {
