@@ -153,11 +153,11 @@ struct HomeView: View {
         .overlay(alignment: .trailing, content: {
             menuView
         })
-//        .onAppear{
-//            //check the user is login or not
-//            userIsNotLogIn = !vm.userIsLogin()
-//            vm.getUserData()
-//        }
+        .onAppear{
+            //check the user is login or not
+            userIsNotLogIn = !vm.userIsLogin()
+            vm.getUserData()
+        }
         .alert(isPresented: $vm.showAlert, content: {
             Alert(title: Text(vm.alertTitle))
         })
@@ -179,30 +179,34 @@ struct HomeView: View {
 extension HomeView{
     private var menuView:some View{
         VStack(alignment:.leading){
-            Text("Menu")
+            let userStudentNo = vm.userData?.email?.replacingOccurrences(
+                of: "@jec.ac.jp",
+                with: "さん"
+            )
+            Text(userStudentNo ?? "Guest")
                 .font(.title)
                 .bold()
                 .foregroundStyle(Color.black)
                 .padding()
                 .frame(maxWidth: .infinity,alignment: .leading)
-            RoundedRectangle(cornerRadius: 10)
-                .fill(.black)
-                .frame(width:250,height: 2)
-            Section("Features") {
+                .padding(.top,20)
+            Section("Menu") {
                 Button {
                         
                     } label: {
                         Text("マップ")
                             .padding()
                             .foregroundStyle(Color.black)
-                            .font(.title2)
+                            .font(.title3)
                             .frame(maxWidth: .infinity,alignment: .leading)
                             .frame(height: 55)
                             .background(.ultraThinMaterial)
-                            .shadow(radius: 1,y:1)
                     }
 
+
             }
+            .padding(.leading,10)
+            Spacer()
             
             Section("アカウント管理") {
                 Button {
@@ -214,12 +218,13 @@ extension HomeView{
                     Text("Sign Out")
                         .padding()
                         .foregroundStyle(Color.red)
-                        .font(.title2)
+                        .font(.title3)
                         .frame(maxWidth: .infinity,alignment: .leading)
                         .frame(height: 55)
                         .background(.thinMaterial)
                 }
             }
+            .padding(.leading,10)
             Spacer()
         }
         .frame(width:250,height: UIScreen.main.bounds.height-100)
