@@ -310,6 +310,7 @@ extension HomeView{
             .background(.blue)
             .cornerRadius(10)
             .shadow(color: CustomColors.shadowColor,radius: 4,x:1,y:1)
+            .padding(.horizontal,10)
         }
     }
 }
