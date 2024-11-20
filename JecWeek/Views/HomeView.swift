@@ -115,7 +115,7 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
-    
+    @State var refreshedButtonAnimate:Bool = false
     @State var showLogOutButton:Bool = false
     @State var userIsNotLogIn = true
     @State var selectedCardIndex:Int = 0
@@ -205,14 +205,37 @@ extension HomeView{
             }
             .padding(20)
             Spacer()
-            Button {
-                showLogOutButton.toggle()
-            } label: {
-                Image(.menu)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: 40, height: 40)
-                    .padding(20)
+            VStack{
+                Button {
+                    showLogOutButton.toggle()
+                } label: {
+                    Image(.menu)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 40, height: 40)
+                        .padding(20)
+                }
+                
+                Button {
+                    Task{
+                        await vm.getUserTagFromFirestore()
+                        refreshedButtonAnimate.toggle()
+                    }
+                } label: {
+                    if #available(iOS 18, *){
+                        Image(systemName: "arrow.clockwise")
+                            .symbolEffect(.rotate, value: refreshedButtonAnimate)
+                            .font(.title)
+                            .tint(.black)
+                            .padding(.trailing,10)
+                    }else{
+                        Image(systemName: "arrow.clockwise")
+                            .font(.title)
+                            .padding(.trailing,10)
+                            .tint(.black)
+                    }
+                    
+                }
             }
         }
     }
@@ -270,6 +293,7 @@ extension HomeView{
     
     private var scanButton:some View{
         Button {
+            
             vm.scan()
         } label: {
             HStack{
