@@ -8,7 +8,7 @@
 import Foundation
 
 struct JsonDataModel:Identifiable,Codable {
-    let id :UUID
+    let id :String
     let buildingNo:Int
     let images:[String]
     let buildingName:String

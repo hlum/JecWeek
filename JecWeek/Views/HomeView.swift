@@ -8,46 +8,44 @@
 
 import SwiftUI
 
-final class MockDataProvider{
-    static let shared = MockDataProvider()
-    var gotTag:[JsonDataModel] = [
-        JsonDataModel(
-            id: UUID(
-                uuidString: "7E4F768A-9E11-45EB-9D94-3C3BB7C4C2A4"
-            ) ?? UUID(),
-            buildingNo: 0,
-            images: [
-                "https://image.minkou.jp/images/school_img/21642/750_6831ae617fac95d66ee485fd6f84dcbf20fb30b7.jpg",
-                "https://s3-ap-northeast-1.amazonaws.com/license-shinronavi/images/6217/midium.jpg",
-                "https://fastly.4sqi.net/img/general/600x600/499674011_JFEz9JKbTXSeloXXXcE9oY-QmkhYy0R5ztNXyfoRDBY.jpg"
-            ],
-            buildingName: "本館",
-            adress: "東京都新宿区百人町１丁目２５−４",
-            date: ISO8601DateFormatter().date(
-                from: "2024-11-14T00:00:00Z"
-            ) ?? Date()
-        )    ]
-    
-    func getTags() -> [JsonDataModel] {
-        return gotTag
-    }
-}
+//final class MockDataProvider{
+//    static let shared = MockDataProvider()
+//    var gotTag:[JsonDataModel] = [
+//        JsonDataModel(
+//            id:"7E4F768A-9E11-45EB-9D94-3C3BB7C4C2A4",
+//            buildingNo: 0,
+//            images: [
+//                "https://image.minkou.jp/images/school_img/21642/750_6831ae617fac95d66ee485fd6f84dcbf20fb30b7.jpg",
+//                "https://s3-ap-northeast-1.amazonaws.com/license-shinronavi/images/6217/midium.jpg",
+//                "https://fastly.4sqi.net/img/general/600x600/499674011_JFEz9JKbTXSeloXXXcE9oY-QmkhYy0R5ztNXyfoRDBY.jpg"
+//            ],
+//            buildingName: "本館",
+//            adress: "東京都新宿区百人町１丁目２５−４",
+//            date: ISO8601DateFormatter().date(
+//                from: "2024-11-14T00:00:00Z"
+//            ) ?? Date()
+//        )    ]
+//    
+//    func getTags() -> [JsonDataModel] {
+//        return gotTag
+//    }
+//}
 
 final class HomeViewModel:ObservableObject{
     @Published var cards:[JsonDataModel] = []
     @Published var showAlert:Bool = false
     @Published var alertTitle:String = ""
-    @Published var userTag:[JsonDataModel] = []
+    @Published var userCardsId:[String] = []
     @Published var userData:AuthDataResultModel? = nil
     private let nfcManager:NFCManager = NFCManager()
     
     
     init() {
-        self.getUserTag()
+        Task{
+            await self.getUserTagFromFirestore()
+        }
         self.cards = JsonFileReader.shared.loadPlaceData() ?? []
-        nfcManager.onCardDataUpdate = {
- [weak self] data,
-error in
+        nfcManager.onCardDataUpdate = { [weak self] data,error in
             if let error = error{
                 Task{
                     await self?.showAlertTitle(alertTitle: error.localizedDescription)
@@ -65,16 +63,13 @@ error in
                 }
                 return
             }
-            
-            let firestoreData = DBUser(
-                uid:userData.uid ,
-                photoUrl:userData.photoURL ,
-                email: userData.photoURL,
-                cardPossessed: [data.id]
-            )
-            
+            //Save the scanned card id to firestore
             FirestoreManger.shared
                 .updateUserCardPossession(userId: userData.uid, cardId: data.id)
+            
+            Task{
+                await self?.getUserTagFromFirestore()
+            }
         }
     }
     
@@ -90,9 +85,24 @@ error in
         self.alertTitle = alertTitle
     }
     
-    func getUserTag(){
-        userTag = MockDataProvider.shared.getTags()
+    func getUserTagFromFirestore()async {
+        guard let userData = AuthenticationManager.shared.getUserData()else{
+            await showAlertTitle(alertTitle: "User not found")
+            return
+        }
+        FirestoreManger.shared
+            .getUserTagData(userId: userData.uid, completion: {[weak self] cards, error in
+                if let error = error {
+                    Task{
+                        await self?.showAlertTitle(alertTitle: error.localizedDescription)
+                    }
+                }
+                
+                self?.userCardsId = cards
+            })
     }
+                            
+                        
     
     func scan(){
         nfcManager.scan()
@@ -282,7 +292,7 @@ extension HomeView{
 
 extension HomeView{
     private func checkUserHasTag(tag:JsonDataModel)->Bool{
-        vm.userTag.contains(where: { $0.id == tag.id })
+        vm.userCardsId.contains(where: { $0 == tag.id })
     }
 }
 #Preview {
