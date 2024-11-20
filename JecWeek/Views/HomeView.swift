@@ -178,7 +178,7 @@ struct HomeView: View {
 //MARK: VIEWS
 extension HomeView{
     private var menuView:some View{
-        VStack{
+        VStack(alignment:.leading){
             Text("Menu")
                 .font(.title)
                 .bold()
@@ -188,18 +188,38 @@ extension HomeView{
             RoundedRectangle(cornerRadius: 10)
                 .fill(.black)
                 .frame(width:250,height: 2)
+            Section("Features") {
                 Button {
-                    
+                        
+                    } label: {
+                        Text("マップ")
+                            .padding()
+                            .foregroundStyle(Color.black)
+                            .font(.title2)
+                            .frame(maxWidth: .infinity,alignment: .leading)
+                            .frame(height: 55)
+                            .background(.ultraThinMaterial)
+                            .shadow(radius: 1,y:1)
+                    }
+
+            }
+            
+            Section("アカウント管理") {
+                Button {
+                    Task{
+                        try? await AuthenticationManager.shared.logOut()
+                        userIsNotLogIn = !vm.userIsLogin()
+                    }
                 } label: {
-                    Text("マップ")
+                    Text("Sign Out")
                         .padding()
-                        .foregroundStyle(Color.white)
+                        .foregroundStyle(Color.red)
                         .font(.title2)
                         .frame(maxWidth: .infinity,alignment: .leading)
                         .frame(height: 55)
-                        .background(.black)
-                        .cornerRadius(10)
+                        .background(.thinMaterial)
                 }
+            }
             Spacer()
         }
         .frame(width:250,height: UIScreen.main.bounds.height-100)
