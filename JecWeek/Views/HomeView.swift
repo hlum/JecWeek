@@ -115,8 +115,9 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    @State var menuOffsetForAnimation:CGFloat = 0
+    @State var showMenu:Bool = false
     @State var refreshedButtonAnimate:Bool = false
-    @State var showLogOutButton:Bool = false
     @State var userIsNotLogIn = true
     @State var selectedCardIndex:Int = 0
     @State var showDetailSheet:Bool = false
@@ -150,8 +151,14 @@ struct HomeView: View {
             }
             
         }
+        .allowsHitTesting(!showMenu)//menuを表示してる場合いタッチ不可能にする
         .overlay(alignment: .trailing, content: {
-            menuView
+            if showMenu{
+                menuView
+                    .shadow(radius: 8,x:-10,y:10)
+                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
+                    .offset(x:menuOffsetForAnimation)
+            }
         })
         .onAppear{
             //check the user is login or not
@@ -179,18 +186,43 @@ struct HomeView: View {
 extension HomeView{
     private var menuView:some View{
         VStack(alignment:.leading){
-            let userStudentNo = vm.userData?.email?.replacingOccurrences(
-                of: "@jec.ac.jp",
-                with: "さん"
-            )
-            Text(userStudentNo ?? "Guest")
-                .font(.title)
-                .bold()
-                .foregroundStyle(Color.black)
-                .padding()
-                .frame(maxWidth: .infinity,alignment: .leading)
-                .padding(.top,20)
-            Section("Menu") {
+            
+            HStack{
+                AsyncImage(url: URL(string: vm.userData?.photoURL ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                        .frame(width: 40, height: 40)
+                        .clipped()
+                        .cornerRadius(50)
+                        .overlay(RoundedRectangle(cornerRadius: 44)
+                            .stroke(Color(.label), lineWidth: 1)
+                        )
+                        
+                } placeholder: {
+                    Image(.profilePic)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: 40, height: 40)
+
+                }
+                
+                let userStudentNo = vm.userData?.email?.replacingOccurrences(
+                    of: "@jec.ac.jp",
+                    with: "さん"
+                )
+                Text(userStudentNo ?? "Guest")
+                    .font(.title)
+                    .bold()
+                    .foregroundStyle(Color.black)
+                    .frame(maxWidth: .infinity,alignment: .leading)
+                    
+
+            }
+            .padding(.leading,20)
+            .padding(.top,20)
+            
+            Section{
                 Button {
                         
                     } label: {
@@ -200,15 +232,18 @@ extension HomeView{
                             .font(.title3)
                             .frame(maxWidth: .infinity,alignment: .leading)
                             .frame(height: 55)
-                            .background(.ultraThinMaterial)
+                            .background(.thinMaterial)
+                            .cornerRadius(10)
+                            .padding(.trailing,10)
                     }
-
-
+            }header:{
+                Text("メニュー")
+                    .bold()
             }
             .padding(.leading,10)
             Spacer()
             
-            Section("アカウント管理") {
+            Section {
                 Button {
                     Task{
                         try? await AuthenticationManager.shared.logOut()
@@ -222,14 +257,42 @@ extension HomeView{
                         .frame(maxWidth: .infinity,alignment: .leading)
                         .frame(height: 55)
                         .background(.thinMaterial)
+                        .cornerRadius(10)
+                        .padding(.trailing,10)
                 }
+            }
+            header:{
+                Text("アカウント管理")
+                    .bold()
             }
             .padding(.leading,10)
             Spacer()
         }
-        .frame(width:250,height: UIScreen.main.bounds.height-100)
+        .frame(width:350,height: UIScreen.main.bounds.height-100)
         .background(.ultraThinMaterial)
         .cornerRadius(30)
+        .gesture(
+            DragGesture()
+                .onChanged({ value in
+                    withAnimation(.easeInOut){
+                        if value.translation.width > 0{
+                            menuOffsetForAnimation = value.translation.width
+                        }
+                    }
+                })
+                .onEnded{ value in
+                    if value.translation.width > 100{
+                        withAnimation(.bouncy){
+                            menuOffsetForAnimation = 0
+                            showMenu = false
+                        }
+                    }else{
+                        menuOffsetForAnimation = 0
+                        showMenu = true
+                    }
+                }
+        )
+
 
 
     }
@@ -253,7 +316,9 @@ extension HomeView{
             Spacer()
             VStack{
                 Button {
-                    showLogOutButton.toggle()
+                    withAnimation(.bouncy) {
+                        showMenu = true
+                    }
                 } label: {
                     Image(.menu)
                         .resizable()
