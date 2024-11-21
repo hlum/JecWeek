@@ -225,7 +225,7 @@ extension HomeView{
             
             Section{
                 Button {
-                        
+                    tabSelected = 1
                     } label: {
                         Text("マップ")
                             .padding()

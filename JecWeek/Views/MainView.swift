@@ -13,6 +13,8 @@ struct MainView: View {
         TabView(selection: $tabSelected) {
             HomeView(tabSelected: $tabSelected)
                 .tag(0)
+            MapView()
+                .tag(1)
         }
     }
 }
