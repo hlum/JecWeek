@@ -121,10 +121,7 @@ final class HomeViewModel:ObservableObject{
 //MARK: HomeView
 struct HomeView: View {
     @Binding var tabSelected:Int
-    @State var menuOffsetForAnimation:CGFloat = 0
-    @State var showMenu:Bool = false
     @State var refreshedButtonAnimate:Bool = false
-    @State var userIsNotLogIn = true
     @State var selectedCardIndex:Int = 0
     @State var showDetailSheet:Bool = false
     @State var tabSelection = 0
@@ -157,18 +154,9 @@ struct HomeView: View {
             }
             
         }
-        .allowsHitTesting(!showMenu)//menuを表示してる場合いタッチ不可能にする
-        .overlay(alignment: .trailing, content: {
-            if showMenu{
-                menuView
-                    .shadow(radius: 8,x:-10,y:10)
-                    .transition(.asymmetric(insertion: .move(edge: .trailing), removal: .move(edge: .trailing)))
-                    .offset(x:menuOffsetForAnimation)
-            }
-        })
+        
         .onAppear{
             //check the user is login or not
-            userIsNotLogIn = !vm.userIsLogin()
             vm.getUserData()
         }
         .alert(isPresented: $vm.showAlert, content: {
@@ -180,9 +168,6 @@ struct HomeView: View {
         .sheet(isPresented: $showDetailSheet, content: {
             DetailSheetView(placeData: vm.cards[selectedCardIndex], showDetailSheet: $showDetailSheet)
         })
-        .fullScreenCover(isPresented: $userIsNotLogIn, content: {
-            LoginPage(userIsNotLogIn: $userIsNotLogIn)
-        })
     }
 }
 
@@ -190,118 +175,7 @@ struct HomeView: View {
 
 //MARK: VIEWS
 extension HomeView{
-    private var menuView:some View{
-        VStack(alignment:.leading){
-            
-            HStack{
-                AsyncImage(url: URL(string: vm.userData?.photoURL ?? "")) { image in
-                    image
-                        .resizable()
-                        .aspectRatio(contentMode: .fill)
-                        .frame(width: 40, height: 40)
-                        .clipped()
-                        .cornerRadius(50)
-                        .overlay(RoundedRectangle(cornerRadius: 44)
-                            .stroke(Color(.label), lineWidth: 1)
-                        )
-                        
-                } placeholder: {
-                    Image(.profilePic)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 40, height: 40)
-
-                }
-                
-                let userStudentNo = vm.userData?.email?.replacingOccurrences(
-                    of: "@jec.ac.jp",
-                    with: "さん"
-                )
-                Text(userStudentNo ?? "Guest")
-                    .font(.title)
-                    .bold()
-                    .foregroundStyle(Color.black)
-                    .frame(maxWidth: .infinity,alignment: .leading)
-                    
-
-            }
-            .padding(.leading,20)
-            .padding(.top,20)
-            
-            Section{
-                Button {
-                    tabSelected = 1
-                    } label: {
-                        Text("マップ")
-                            .padding()
-                            .foregroundStyle(Color.black)
-                            .font(.title3)
-                            .frame(maxWidth: .infinity,alignment: .leading)
-                            .frame(height: 55)
-                            .background(.thinMaterial)
-                            .cornerRadius(10)
-                            .padding(.trailing,10)
-                    }
-            }header:{
-                Text("メニュー")
-                    .bold()
-            }
-            .padding(.leading,10)
-            Spacer()
-            
-            Section {
-                Button {
-                    Task{
-                        try? await AuthenticationManager.shared.logOut()
-                        userIsNotLogIn = !vm.userIsLogin()
-                    }
-                } label: {
-                    Text("Sign Out")
-                        .padding()
-                        .foregroundStyle(Color.red)
-                        .font(.title3)
-                        .frame(maxWidth: .infinity,alignment: .leading)
-                        .frame(height: 55)
-                        .background(.thinMaterial)
-                        .cornerRadius(10)
-                        .padding(.trailing,10)
-                }
-            }
-            header:{
-                Text("アカウント管理")
-                    .bold()
-            }
-            .padding(.leading,10)
-            Spacer()
-        }
-        .frame(width:350,height: UIScreen.main.bounds.height-100)
-        .background(.ultraThinMaterial)
-        .cornerRadius(30)
-        .gesture(
-            DragGesture()
-                .onChanged({ value in
-                    withAnimation(.easeInOut){
-                        if value.translation.width > 0{
-                            menuOffsetForAnimation = value.translation.width
-                        }
-                    }
-                })
-                .onEnded{ value in
-                    if value.translation.width > 100{
-                        withAnimation(.bouncy){
-                            menuOffsetForAnimation = 0
-                            showMenu = false
-                        }
-                    }else{
-                        menuOffsetForAnimation = 0
-                        showMenu = true
-                    }
-                }
-        )
-
-
-
-    }
+    
     private var backgroundView:some View{
         ZStack{
             Image(.lines)
@@ -317,22 +191,6 @@ extension HomeView{
                     .font(.system(size: 30, weight: .semibold))
                 Text("取得したタッグ")
                     .font(.system(size: 19, weight: .thin))
-            }
-            .padding(20)
-            Spacer()
-            VStack{
-                Button {
-                    withAnimation(.bouncy) {
-                        showMenu = true
-                    }
-                } label: {
-                    Image(.menu)
-                        .resizable()
-                        .aspectRatio(contentMode: .fit)
-                        .frame(width: 40, height: 40)
-                        .padding(20)
-                }
-                
                 Button {
                     Task{
                         await vm.getUserTagFromFirestore()
@@ -353,7 +211,10 @@ extension HomeView{
                     }
                     
                 }
+                .frame(maxWidth: .infinity, alignment: .trailing)
             }
+            .padding(20)
+            Spacer()
         }
     }
     
