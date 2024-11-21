@@ -115,6 +115,7 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    @Binding var tabSelected:Int
     @State var menuOffsetForAnimation:CGFloat = 0
     @State var showMenu:Bool = false
     @State var refreshedButtonAnimate:Bool = false
@@ -435,5 +436,5 @@ extension HomeView{
     }
 }
 #Preview {
-    HomeView()
+    HomeView(tabSelected: .constant(1))
 }
