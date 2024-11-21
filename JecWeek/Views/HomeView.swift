@@ -76,7 +76,6 @@ final class HomeViewModel:ObservableObject{
     
     func getUserData(){
         userData = AuthenticationManager.shared.getUserData()
-        dump(userData)
     }
     
     @MainActor
@@ -90,16 +89,22 @@ final class HomeViewModel:ObservableObject{
             await showAlertTitle(alertTitle: "User not found")
             return
         }
-        FirestoreManger.shared
-            .getUserTagData(userId: userData.uid, completion: {[weak self] cards, error in
-                if let error = error {
-                    Task{
-                        await self?.showAlertTitle(alertTitle: error.localizedDescription)
-                    }
+        FirestoreManger.shared.getDBUser(userId: userData.uid) {[weak self] dbUser, error in
+            if let error = error{
+                Task{
+                    await self?.showAlertTitle(alertTitle: error.localizedDescription)
                 }
-                
-                self?.userCardsId = cards
-            })
+                return
+            }
+            
+            guard let dbUser = dbUser else{
+                Task{
+                    await self?.showAlertTitle(alertTitle: "User not found")
+                }
+                return
+            }
+            self?.userCardsId = dbUser.cardPossessed ?? []
+        }
     }
                             
                         
@@ -175,9 +180,9 @@ struct HomeView: View {
         .sheet(isPresented: $showDetailSheet, content: {
             DetailSheetView(placeData: vm.cards[selectedCardIndex], showDetailSheet: $showDetailSheet)
         })
-//        .fullScreenCover(isPresented: $userIsNotLogIn, content: {
-//            LoginPage(userIsNotLogIn: $userIsNotLogIn)
-//        })
+        .fullScreenCover(isPresented: $userIsNotLogIn, content: {
+            LoginPage(userIsNotLogIn: $userIsNotLogIn)
+        })
     }
 }
 

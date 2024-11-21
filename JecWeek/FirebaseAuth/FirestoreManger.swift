@@ -70,10 +70,11 @@ class FirestoreManger{
             .updateData(["cardPossessed":FieldValue.arrayUnion([cardId])])
     }
     
-    func getUserTagData(userId:String,completion:@escaping ([String],Error?)->()) {
+    
+    func getDBUser(userId:String,completion:@escaping (DBUser?,Error?)->()){
         userDocuments(userId: userId).getDocument {
- snapShot,
- error in
+            snapShot,
+            error in
             if let snapShot = snapShot{
                 let data = snapShot.data()
                 if let data = data{
@@ -82,21 +83,17 @@ class FirestoreManger{
                             DBUser.self,
                             from: data
                         )
-                        guard let cardPossessed = userData.cardPossessed else{
-                            print("No card found")
-                            completion([],nil)
-                            return
-                        }
-                        
-                        completion(cardPossessed,nil)
+                        completion(userData,nil)
                         print(userData)
                     }catch{
-                        completion([],error)
+                        completion(nil,error)
                     }
                 }
             }
         }
     }
+    
+
     
     
 }
