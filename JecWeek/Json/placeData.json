@@ -5,6 +5,10 @@
         "building_name": "本館",
         "adress": "東京都新宿区百人町１丁目２５−４",
         "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.698860,
+            "longitude": 139.697149
+        },
         "images": [
             "https://image.minkou.jp/images/school_img/21642/750_6831ae617fac95d66ee485fd6f84dcbf20fb30b7.jpg",
             "https://s3-ap-northeast-1.amazonaws.com/license-shinronavi/images/6217/midium.jpg",
@@ -17,6 +21,10 @@
         "building_name": "7号館",
         "adress": "東京都新宿区北新宿１丁目４−２",
         "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.698560,
+            "longitude": 139.697249
+        },
         "images": [
             "https://www.ospn.jp/press/wp-content/uploads/2014/09/2006_10.jpg",
             "https://image.ekiten.jp/contribution/old/15/183767/158446_20110712133029.jpg",
@@ -29,6 +37,10 @@
         "building_name": "西館",
         "adress": "東京都新宿区百人町１丁目２５−６",
         "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.698760,
+            "longitude": 139.696949
+        },
         "images": [
             "https://example.com/image6.jpg",
             "https://example.com/image7.jpg",
@@ -41,6 +53,10 @@
         "building_name": "東館",
         "adress": "東京都新宿区百人町１丁目２５−７",
         "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.698660,
+            "longitude": 139.697349
+        },
         "images": [
             "https://example.com/image9.jpg",
             "https://example.com/image10.jpg",
