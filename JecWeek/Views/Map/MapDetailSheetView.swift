@@ -17,10 +17,16 @@ struct MapDetailSheetView: View {
     var body: some View {
         VStack{
             HStack{
-                Text(placeData.buildingName)
-                    .font(.system(size: 50))
-                    .fontWeight(.bold)
-                    .padding()
+                VStack(alignment:.leading){
+                    Text(placeData.buildingName)
+                        .font(.title)
+                        .fontWeight(.bold)
+                        .padding(.horizontal)
+                    Text(placeData.adress)
+                        .font(.system(size: 20))
+                        .fontWeight(.light)
+                        .padding(.horizontal)
+                }
                 Spacer()
                 
                 Button {

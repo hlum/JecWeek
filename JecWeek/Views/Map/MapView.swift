@@ -151,9 +151,11 @@ struct MapView: View {
                         getDirection:getDirections,
                         placeData: selectedPlace
                     )
+                    .presentationCornerRadius(20)
                     .presentationDetents([.medium])
                 }
             }
+            
             
             
             .onAppear{
