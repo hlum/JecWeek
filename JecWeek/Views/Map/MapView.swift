@@ -105,9 +105,8 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
 }
 struct MapView: View {
-    @State var inDirectionMode:Bool = false
     @StateObject private var locationManager = LocationManager()
-    @State private var selectedPlace: CLLocationCoordinate2D? = nil
+    @State private var selectedPlace: JsonDataModel? = nil
     @State private var route: MKRoute?
     
     @StateObject var cardsManager = CardsManager()
@@ -115,130 +114,46 @@ struct MapView: View {
     var body: some View {
         VStack {
             ZStack{
-                Map(
-                    position:$locationManager.cameraPosition
-                ){
-                    
+                Map(position:$locationManager.cameraPosition){
                     UserAnnotation(anchor: .center)
-                    
                     ForEach(cardsManager.cardsFromJson,id:\.id) { cardFromJson in
                         let coordinate = CLLocationCoordinate2D(
                             latitude: cardFromJson.coordinates.latitude,
                             longitude: cardFromJson.coordinates.longitude
                         )
                         
-                        
                         if !checkUserHasTag(tag: cardFromJson) {
-                            
-                            Annotation(
-                                "",
-                                coordinate: coordinate
-                            ) {
-                                let isSelected = cardFromJson.coordinates.latitude == selectedPlace?.latitude &&
-                                                 cardFromJson.coordinates.longitude == selectedPlace?.longitude
-                                
-                                VStack(spacing: 0) {
-                                    // Animated building name
-                                   
-                                    
-                                    // Animated marker icon
-                                    Image(systemName: "map.circle.fill")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(
-                                            width: isSelected ? 60 : 30,
-                                            height: isSelected ? 60 : 30
-                                        )
-                                        .font(.headline)
-                                        .foregroundColor(.white)
-                                        .padding(6)
-                                        .background(isSelected ? .blue : .green)
-                                        .cornerRadius(36)
-                                        .animation(.bouncy, value: isSelected)
-                                    
-                                    // Animated pointer
-                                    Image(systemName: "triangle.fill")
-                                        .resizable()
-                                        .scaledToFit()
-                                        .foregroundColor(isSelected ? .blue : .green)
-                                        .frame(width: 10, height: 10)
-                                        .rotationEffect(Angle(degrees: 180))
-                                        .offset(y: isSelected ? -5 : -3)
-                                        .animation(.bouncy, value: isSelected)
-                                    
-                                    Text(cardFromJson.buildingName)
-                                        .font(isSelected ? .title3 : .title2)
-                                        .fontWeight(
-                                            isSelected ? .bold : .regular
-                                        )
-                                        .foregroundColor(.black)
-                                        .padding(6)
-//                                        .background(.white)
-                                        .cornerRadius(6)
-                                        .offset(y: isSelected ? -5 : -3)
-                                        .animation(.bouncy, value: isSelected)
-                                }
-                                .shadow(color: isSelected ? .blue.opacity(0.5) : .clear, radius: 10, x: 0, y: 0)
-                                .onTapGesture {
-                                    withAnimation(.bouncy) {
-                                        selectedPlace = CLLocationCoordinate2D(
-                                            latitude: coordinate.latitude,
-                                            longitude: coordinate.longitude
-                                        )
-                                    }
-                                }
+                            Annotation("",coordinate: coordinate) {
+                                AnnotationView(for: cardFromJson)
                             }
                         }
-                      
-                        
-                        
                     }
                     
                     if let route = route {
                         MapPolyline(route.polyline)
-                            .stroke(Color.blue, lineWidth: 4    )
+                            .stroke(Color.blue, lineWidth: 4)
                     }
                 }
-
-                
-                
                 .mapControlVisibility(.hidden)
-                                
                 .mapStyle(.standard(elevation: .realistic))
                 
                 VStack{
                     Spacer()
                     HStack{
-                        Button {
-                            moveCameraToUserLocation()
-                        } label: {
-                            Image(systemName:"paperplane.fill")
-                                .padding()
-                                .background(.white)
-                                .foregroundColor(.black)
-                                .cornerRadius(10)
-                                .padding(.leading,30)
-                            
-                        }
-                        
-                        Spacer()
-                        Button {
-                            inDirectionMode = true
-                            getDirections()
-                            moveCameraToUserLocation()
-                        } label: {
-                            Text("Direction")
-                                .padding()
-                                .background(.white)
-                                .foregroundColor(.black)
-                                .cornerRadius(10)
-                        }
-                        
+                        showUserLocationButton
                         Spacer()
                     }
                 }
-                
             }
+            .sheet(item: $selectedPlace) { place in
+                if let place = selectedPlace{
+                    MapDetailSheetView(userLocation: $locationManager.userCoordinate, route: $route,
+                        placeData: place
+                    )
+                        .presentationDetents([.medium])
+                }
+            }
+            
             .onAppear{
                 cardsManager.getCardsFromJson()
                 cardsManager.getCardsFromFirestore()
@@ -246,7 +161,11 @@ struct MapView: View {
             
         }
     }
-    
+}
+
+
+//MARK: - Functions
+extension MapView{
     func checkUserHasTag(tag:JsonDataModel)->Bool{
         cardsManager.userPossessedCards.contains(where: { $0 == tag.id })
     }
@@ -267,17 +186,19 @@ struct MapView: View {
         withAnimation(.easeIn){
             locationManager.cameraPosition = .region(region)
         }
-
+        
     }
     func getDirections() {
         
         // Create and configure the request
         let request = MKDirections.Request()
         request.source = MKMapItem(placemark: MKPlacemark(coordinate: locationManager.userCoordinate))
+        let destinationCoordinate = CLLocationCoordinate2D(
+            latitude: selectedPlace!.coordinates.latitude,
+            longitude: selectedPlace!.coordinates.longitude)
+        
         request.destination = MKMapItem(
-            placemark: MKPlacemark(
-                coordinate: selectedPlace!
-            )
+            placemark: MKPlacemark(coordinate: destinationCoordinate)
         )
         request.transportType = .walking
         
@@ -296,27 +217,74 @@ struct MapView: View {
 }
 
 
+
+//MARK: - SubViews
 extension MapView{
-    //    private func markerForCard(cardFromJson:JsonDataModel)->some View{
-    //        let coordinate = CLLocationCoordinate2D(
-    //            latitude: cardFromJson.coordinates.latitude,
-    //            longitude: cardFromJson.coordinates.longitude
-    //        )
-    //        VStack{
-    //            Marker(coordinate: coordinate) {
-    //                VStack{
-    //                    Text(cardFromJson.buildingName)
-    //                        .font(.title)
-    //                        .padding(10)
-    //                        .background(.white)
-    //                        .bold()
-    //                        .cornerRadius(10)
-    //                    Image(systemName: "building.2")
-    //                        .font(.title)
-    //                }
-    //            }
-    //        }
-    //    }
+    private var showUserLocationButton:some View{
+        Button {
+            moveCameraToUserLocation()
+        } label: {
+            Image(systemName:"paperplane.fill")
+                .padding()
+                .background(.white)
+                .foregroundColor(.black)
+                .cornerRadius(10)
+                .padding(.leading,30)
+            
+        }
+    }
+    private func AnnotationView(for cardFromJson:JsonDataModel)->some View{
+        let isSelected = cardFromJson.coordinates.latitude == selectedPlace?.coordinates.latitude &&
+        cardFromJson.coordinates.longitude == selectedPlace?.coordinates.longitude
+        
+        return VStack(spacing: 0) {
+            // Animated building name
+            
+            
+            // Animated marker icon
+            Image(systemName: "map.circle.fill")
+                .resizable()
+                .scaledToFit()
+                .frame(
+                    width: isSelected ? 60 : 30,
+                    height: isSelected ? 60 : 30
+                )
+                .font(.headline)
+                .foregroundColor(.white)
+                .padding(6)
+                .background(isSelected ? .blue : .green)
+                .cornerRadius(36)
+                .animation(.bouncy, value: isSelected)
+            
+            // Animated pointer
+            Image(systemName: "triangle.fill")
+                .resizable()
+                .scaledToFit()
+                .foregroundColor(isSelected ? .blue : .green)
+                .frame(width: 10, height: 10)
+                .rotationEffect(Angle(degrees: 180))
+                .offset(y: isSelected ? -5 : -3)
+                .animation(.bouncy, value: isSelected)
+            
+            Text(cardFromJson.buildingName)
+                .font(isSelected ? .title3 : .title2)
+                .fontWeight(
+                    isSelected ? .bold : .regular
+                )
+                .foregroundColor(.black)
+                .padding(6)
+                .cornerRadius(6)
+                .offset(y: isSelected ? -5 : -3)
+                .animation(.bouncy, value: isSelected)
+        }
+        .shadow(color: isSelected ? .blue.opacity(0.5) : .clear, radius: 10, x: 0, y: 0)
+        .onTapGesture {
+            withAnimation(.bouncy) {
+                selectedPlace = cardFromJson
+            }
+        }
+        
+    }
 }
 
 #Preview {
