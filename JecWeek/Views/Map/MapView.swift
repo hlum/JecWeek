@@ -39,7 +39,6 @@ final class CardsManager:ObservableObject{
 
 final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     private let locationManager = CLLocationManager()
-    @Published var region = MKCoordinateRegion()
     @Published var userCoordinate = CLLocationCoordinate2D()
     @Published var cameraPosition: MapCameraPosition = .automatic
     
@@ -55,7 +54,6 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         switch locationManager.authorizationStatus {
         case .authorizedAlways, .authorizedWhenInUse:
             locationManager.startUpdatingLocation()
-            print("Location access authorized")
         case .notDetermined:
             locationManager.requestWhenInUseAuthorization()
             print("Requesting location authorization")
@@ -75,7 +73,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         switch status {
         case .authorizedAlways, .authorizedWhenInUse:
             locationManager.startUpdatingLocation()
-            print("Location access granted")
+            
         case .denied, .restricted:
             locationManager.requestWhenInUseAuthorization()
             print("Location access denied or restricted. User must enable permissions in Settings.")
@@ -92,11 +90,9 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
         guard let newLocation = locations.last else { return }
         DispatchQueue.main.async {
             self.userCoordinate = newLocation.coordinate
-            self.region = MKCoordinateRegion(
-                center: newLocation.coordinate,
-                span: MKCoordinateSpan(latitudeDelta: 0.05, longitudeDelta: 0.05)
-            )
-            print("Updated location: \(newLocation.coordinate)")
+            //try to notify the user location updated, and update the route
+            NotificationCenter.default.post(name: Notification.Name("UserLocationUpdated"), object: nil)
+
         }
     }
     
@@ -105,6 +101,10 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
 }
 struct MapView: View {
+    @State private var lastDirectionsUpdateTime: Date?
+    private let minTimeBetweenUpdates: TimeInterval = 5.0
+    @State private var showDetailView:Bool = false
+    @State private var isInDirectionMode:Bool = false
     @StateObject private var locationManager = LocationManager()
     @State private var selectedPlace: JsonDataModel? = nil
     @State private var route: MKRoute?
@@ -145,17 +145,19 @@ struct MapView: View {
                     }
                 }
             }
-            .sheet(item: $selectedPlace) { place in
-                if let place = selectedPlace{
+            .sheet(isPresented: $showDetailView) {
+                if let selectedPlace = selectedPlace{
                     MapDetailSheetView(
                         getDirection:getDirections,
-                        placeData: place
+                        placeData: selectedPlace
                     )
-                        .presentationDetents([.medium])
+                    .presentationDetents([.medium])
                 }
             }
             
+            
             .onAppear{
+                updateRoute()
                 cardsManager.getCardsFromJson()
                 cardsManager.getCardsFromFirestore()
             }
@@ -165,57 +167,6 @@ struct MapView: View {
 }
 
 
-//MARK: - Functions
-extension MapView{
-    func checkUserHasTag(tag:JsonDataModel)->Bool{
-        cardsManager.userPossessedCards.contains(where: { $0 == tag.id })
-    }
-    
-    private func moveCameraToUserLocation(){
-        let coordinate = CLLocationCoordinate2D(
-            latitude: locationManager.userCoordinate.latitude,
-            longitude: locationManager.userCoordinate.longitude
-        )
-        let span = MKCoordinateSpan(
-            latitudeDelta: 0.001,
-            longitudeDelta: 0.001
-        )
-        let region = MKCoordinateRegion(
-            center: coordinate,
-            span: span
-        )
-        withAnimation(.easeIn){
-            locationManager.cameraPosition = .region(region)
-        }
-        
-    }
-    func getDirections() {
-        
-        // Create and configure the request
-        let request = MKDirections.Request()
-        request.source = MKMapItem(placemark: MKPlacemark(coordinate: locationManager.userCoordinate))
-        let destinationCoordinate = CLLocationCoordinate2D(
-            latitude: selectedPlace!.coordinates.latitude,
-            longitude: selectedPlace!.coordinates.longitude)
-        
-        request.destination = MKMapItem(
-            placemark: MKPlacemark(coordinate: destinationCoordinate)
-        )
-        request.transportType = .walking
-        
-        
-        // Get the directions based on the request
-        Task {
-            do {
-                let directions = MKDirections(request: request)
-                let response = try await directions.calculate()
-                route = response.routes.first
-            } catch {
-                print("Error getting directions: \(error)")
-            }
-        }
-    }
-}
 
 
 
@@ -281,10 +232,100 @@ extension MapView{
         .shadow(color: isSelected ? .blue.opacity(0.5) : .clear, radius: 10, x: 0, y: 0)
         .onTapGesture {
             withAnimation(.bouncy) {
-                selectedPlace = cardFromJson
+                    selectedPlace = cardFromJson
+                    showDetailView = true
+
             }
         }
         
+    }
+}
+
+
+//MARK: - Functions
+extension MapView{
+    func checkUserHasTag(tag:JsonDataModel)->Bool{
+        cardsManager.userPossessedCards.contains(where: { $0 == tag.id })
+    }
+    
+    private func moveCameraToUserLocation(){
+        let coordinate = CLLocationCoordinate2D(
+            latitude: locationManager.userCoordinate.latitude,
+            longitude: locationManager.userCoordinate.longitude
+        )
+        let span = MKCoordinateSpan(
+            latitudeDelta: 0.001,
+            longitudeDelta: 0.001
+        )
+        let region = MKCoordinateRegion(
+            center: coordinate,
+            span: span
+        )
+        withAnimation(.easeIn){
+            locationManager.cameraPosition = .region(region)
+        }
+        
+    }
+    func getDirections() {
+        
+        // Create and configure the request
+        let request = MKDirections.Request()
+        request.source = MKMapItem(placemark: MKPlacemark(coordinate: locationManager.userCoordinate))
+        let destinationCoordinate = CLLocationCoordinate2D(
+            latitude: selectedPlace!.coordinates.latitude,
+            longitude: selectedPlace!.coordinates.longitude)
+        
+        request.destination = MKMapItem(
+            placemark: MKPlacemark(coordinate: destinationCoordinate)
+        )
+        request.transportType = .walking
+        
+        
+        // Get the directions based on the request
+        Task {
+            do {
+                let directions = MKDirections(request: request)
+                let response = try await directions.calculate()
+                route = response.routes.first
+                self.isInDirectionMode = true
+            } catch {
+                print("Error getting directions: \(error)")
+            }
+        }
+    }
+    
+    //when the user start to move, getDirections() get called and update the route
+    func updateRoute(){
+        NotificationCenter.default
+            .addObserver(
+                forName: Notification.Name("UserLocationUpdated"),
+                object: nil,
+                queue: .main) { _ in
+                    print("User location updated")
+                    if isInDirectionMode{
+                        self.checkAndUpdateRoute()
+                        
+                    }
+                }
+    }
+    
+    
+    private func checkAndUpdateRoute(){
+        guard let lastDirectionsUpdateTime = lastDirectionsUpdateTime else {
+            getDirections()
+            print("First update")
+            self.lastDirectionsUpdateTime = Date()
+            return
+        }
+        let timeSinceLastUpdate = Date().timeIntervalSince(lastDirectionsUpdateTime)
+        
+        if timeSinceLastUpdate > minTimeBetweenUpdates {
+            getDirections()
+            print("route updated after \(timeSinceLastUpdate)")
+            self.lastDirectionsUpdateTime = Date()
+        }else{
+            print("Skip update")
+        }
     }
 }
 
