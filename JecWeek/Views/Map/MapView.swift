@@ -101,6 +101,8 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
 }
 struct MapView: View {
+    @State var showMapStyleMenu: Bool = false
+    @State var mapStyle: MapStyle = .standard
     @State private var lastDirectionsUpdateTime: Date?
     private let minTimeBetweenUpdates: TimeInterval = 5.0
     @State private var showDetailView:Bool = false
@@ -135,7 +137,7 @@ struct MapView: View {
                     }
                 }
                 .mapControlVisibility(.hidden)
-                .mapStyle(.standard(elevation: .realistic))
+                .mapStyle(mapStyle)
                 
                 VStack{
                     Spacer()
@@ -145,6 +147,22 @@ struct MapView: View {
                     }
                 }
             }
+            .overlay(alignment: .topLeading, content: {
+                Menu {
+                    Button("標準") {
+                        mapStyle = .standard(elevation: .realistic)
+                    }
+                    
+                    Button("航空写真") {
+                        mapStyle = .hybrid
+                    }
+                    
+                   
+
+                } label: {
+                    mapStyleMenuButton
+                }
+            })
             .sheet(isPresented: $showDetailView) {
                 if let selectedPlace = selectedPlace{
                     MapDetailSheetView(
@@ -179,11 +197,13 @@ extension MapView{
             moveCameraToUserLocation()
         } label: {
             Image(systemName:"paperplane.fill")
+                .font(.system(size: 30))
                 .padding()
                 .background(.white)
-                .foregroundColor(.black)
+                .foregroundColor(.blue)
                 .cornerRadius(10)
                 .padding(.leading,30)
+                .shadow(radius: 10)
             
         }
     }
@@ -219,15 +239,16 @@ extension MapView{
                 .rotationEffect(Angle(degrees: 180))
                 .offset(y: isSelected ? -5 : -3)
                 .animation(.bouncy, value: isSelected)
-            
             Text(cardFromJson.buildingName)
-                .font(isSelected ? .title3 : .title2)
+                .font(isSelected ? .system(size: 15) : .system(size: 20))
                 .fontWeight(
                     isSelected ? .bold : .regular
                 )
                 .foregroundColor(.black)
                 .padding(6)
+                .background(.thinMaterial)
                 .cornerRadius(6)
+            
                 .offset(y: isSelected ? -5 : -3)
                 .animation(.bouncy, value: isSelected)
         }
@@ -240,6 +261,27 @@ extension MapView{
             }
         }
         
+    }
+    
+    private var mapStyleMenuButton:some View{
+        Button {
+            showMapStyleMenu = true
+        } label: {
+            VStack{
+                Image(systemName: "map.fill")
+                    .font(.system(size: 20))
+                    .padding()
+                    .background(.white)
+                    .foregroundColor(.black)
+                    .cornerRadius(10)
+                    
+                Text("Map Style")
+                    .font(.caption)
+                    .foregroundStyle(.black)
+            }
+            .padding(.leading,30)
+            .shadow(radius: 10)
+        }
     }
 }
 

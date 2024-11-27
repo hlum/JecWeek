@@ -47,6 +47,9 @@ struct MapDetailSheetView: View {
             if let _ = lookAroundScene{
                 LookAroundPreview(scene: $lookAroundScene)
                     .frame(height: 300)
+                    .cornerRadius(20)
+                    .padding(.horizontal)
+                    
             }
         }
         .task {
