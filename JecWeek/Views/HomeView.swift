@@ -32,10 +32,10 @@ import SwiftUI
 //}
 
 final class HomeViewModel:ObservableObject{
-    @Published var cards:[JsonDataModel] = []
+    @Published var cards:[JsonDataModel] = []//cards from json
     @Published var showAlert:Bool = false
     @Published var alertTitle:String = ""
-    @Published var userCardsId:[String] = []
+    @Published var userCardsId:[String] = []//cards from  firestore
     @Published var userData:AuthDataResultModel? = nil
     private let nfcManager:NFCManager = NFCManager()
     

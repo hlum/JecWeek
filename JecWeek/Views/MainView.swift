@@ -72,9 +72,9 @@ struct MainView: View {
                 EmptyView()
             }
         }
-//        .fullScreenCover(isPresented: $userIsNotLogIn, content: {
-//            LoginPage(userIsNotLogIn: $userIsNotLogIn)
-//        })
+        .fullScreenCover(isPresented: $userIsNotLogIn, content: {
+            LoginPage(userIsNotLogIn: $userIsNotLogIn)
+        })
 
         .alert(isPresented: $mainViewModel.showAlert, content: {
             Alert(title: Text(mainViewModel.alertMessage))
@@ -162,7 +162,7 @@ extension MainView{
             
             Section{
                 menuNavButton(tabNo: 0, title: "ホーム")
-                menuNavButton(tabNo: 1, title: "マップ")                
+                menuNavButton(tabNo: 1, title: "マップ")
             }header:{
                 Text("メニュー")
                     .bold()
@@ -230,20 +230,21 @@ extension MainView{
     
     private func menuNavButton(tabNo:Int,title:String)->some View{
         Button {
-            withAnimation(.bouncy) {
+            withAnimation(.linear) {
                 showMenu = false
                 tabSelected = tabNo
             }
             } label: {
                 Text(title)
                     .padding()
-                    .foregroundStyle(tabSelected == tabNo ? Color.gray : Color.black)
+                    .foregroundStyle(Color.black)
                     .font(.title3)
                     .frame(maxWidth: .infinity,alignment: .leading)
                     .frame(height: 55)
                     .background(.thinMaterial)
                     .cornerRadius(10)
                     .padding(.trailing,10)
+                    .shadow(radius:tabSelected == tabNo ? 10 : 0)
             }
             .disabled(tabSelected == tabNo)
     }
