@@ -55,7 +55,6 @@ class FirestoreManger{
         //check if the user data is already exist
         userDocuments(userId: userData.uid).getDocument { snapshot, error in
             if let snapshot = snapshot{
-                print(snapshot.exists)
                 return
             }
         }
@@ -84,7 +83,6 @@ class FirestoreManger{
                             from: data
                         )
                         completion(userData,nil)
-                        print(userData)
                     }catch{
                         completion(nil,error)
                     }

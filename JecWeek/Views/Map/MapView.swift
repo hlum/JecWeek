@@ -101,6 +101,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
     }
 }
 struct MapView: View {
+    @State var travelTime:TimeInterval?
     @State var showMapStyleMenu: Bool = false
     @State var mapStyle: MapStyle = .standard
     @State private var lastDirectionsUpdateTime: Date?
@@ -124,11 +125,16 @@ struct MapView: View {
                             longitude: cardFromJson.coordinates.longitude
                         )
                         
-                        if !checkUserHasTag(tag: cardFromJson) {
-                            Annotation("",coordinate: coordinate) {
-                                AnnotationView(for: cardFromJson)
-                            }
+                        
+                        Annotation("",coordinate: coordinate) {
+                            AnnotationView(
+                                for: cardFromJson,
+                                cardIsAlreadyPossessed: checkUserHasTag(
+                                    tag: cardFromJson
+                                )
+                            )
                         }
+                        
                     }
                     
                     if let route = route {
@@ -144,24 +150,32 @@ struct MapView: View {
                     HStack{
                         showUserLocationButton
                         Spacer()
+                        if route != nil{
+                            cancelDestinationButton
+                                .transition(.scale)
+                        }
                     }
                 }
             }
-            .overlay(alignment: .topLeading, content: {
-                Menu {
-                    Button("標準") {
-                        mapStyle = .standard(elevation: .realistic)
-                    }
-                    
-                    Button("航空写真") {
-                        mapStyle = .hybrid
-                    }
-                    
-                   
-
-                } label: {
-                    mapStyleMenuButton
+            .overlay(alignment: .top) {
+                if let route = route {
+                    Text("時間:\(formatTimeInterval(travelTime ?? 0))")
+                        .font(.title2)
+                        .bold()
+                        .padding(.horizontal)
+                        .frame(height: 65)
+                        .background(.thinMaterial)
+                        .foregroundStyle(.black)
+                        .cornerRadius(10)
+                        .padding(.horizontal)
+                        .shadow(radius: 10)
+                        .transition(
+                            .scale
+                        )
                 }
+            }
+            .overlay(alignment: .topLeading, content: {
+                mapStyleMenuView
             })
             .sheet(isPresented: $showDetailView) {
                 if let selectedPlace = selectedPlace{
@@ -192,6 +206,39 @@ struct MapView: View {
 
 //MARK: - SubViews
 extension MapView{
+    private var cancelDestinationButton:some View{
+        Button {
+            withAnimation(.bouncy){
+                route = nil
+                isInDirectionMode = false
+                selectedPlace = nil
+            }
+        } label: {
+            Text("キャンセル")
+                .font(.title2)
+                .frame(maxWidth: .infinity)
+                .frame(height:65)
+                .background(.red)
+                .foregroundStyle(.white)
+                .cornerRadius(10)
+                .padding()
+                .shadow(radius: 10)
+        }
+    }
+    private var mapStyleMenuView:some View{
+        Menu {
+            Button("標準") {
+                mapStyle = .standard(elevation: .realistic)
+            }
+            
+            Button("航空写真") {
+                mapStyle = .hybrid(elevation: .realistic)
+            }
+        } label: {
+            mapStyleMenuButton
+        }
+    }
+    
     private var showUserLocationButton:some View{
         Button {
             moveCameraToUserLocation()
@@ -207,7 +254,9 @@ extension MapView{
             
         }
     }
-    private func AnnotationView(for cardFromJson:JsonDataModel)->some View{
+    
+    
+    private func AnnotationView(for cardFromJson:JsonDataModel,cardIsAlreadyPossessed:Bool)->some View{
         let isSelected = cardFromJson.coordinates.latitude == selectedPlace?.coordinates.latitude &&
         cardFromJson.coordinates.longitude == selectedPlace?.coordinates.longitude
         
@@ -216,17 +265,19 @@ extension MapView{
             
             
             // Animated marker icon
-            Image(systemName: "map.circle.fill")
+            Image(systemName: cardIsAlreadyPossessed ? "checkmark.circle.fill" : "lock.circle" )
                 .resizable()
                 .scaledToFit()
                 .frame(
                     width: isSelected ? 60 : 30,
                     height: isSelected ? 60 : 30
                 )
-                .font(.headline)
                 .foregroundColor(.white)
-                .padding(6)
-                .background(isSelected ? .blue : .green)
+                .padding(10)
+                .background(
+                    cardIsAlreadyPossessed ? (isSelected ? .blue : .green)
+                    : .red
+                )
                 .cornerRadius(36)
                 .animation(.bouncy, value: isSelected)
             
@@ -234,7 +285,12 @@ extension MapView{
             Image(systemName: "triangle.fill")
                 .resizable()
                 .scaledToFit()
-                .foregroundColor(isSelected ? .blue : .green)
+                .foregroundColor(
+                    cardIsAlreadyPossessed ? (
+                        isSelected ? .blue : .green
+                    )
+                    : .red
+                )
                 .frame(width: 10, height: 10)
                 .rotationEffect(Angle(degrees: 180))
                 .offset(y: isSelected ? -5 : -3)
@@ -330,8 +386,13 @@ extension MapView{
             do {
                 let directions = MKDirections(request: request)
                 let response = try await directions.calculate()
-                route = response.routes.first
-                self.isInDirectionMode = true
+                withAnimation(.bouncy){
+                    route = response.routes.first
+                    self.isInDirectionMode = true
+                    moveCameraToUserLocation()
+                    self.travelTime = route?.expectedTravelTime
+                }
+                
             } catch {
                 print("Error getting directions: \(error)")
             }
@@ -370,6 +431,13 @@ extension MapView{
         }else{
             print("Skip update")
         }
+    }
+    
+    func formatTimeInterval(_ timeInterval: TimeInterval) -> String {
+        let formatter = DateComponentsFormatter()
+        formatter.allowedUnits = [.hour, .minute]
+        formatter.unitsStyle = .short
+        return formatter.string(from: timeInterval) ?? "N/A"
     }
 }
 

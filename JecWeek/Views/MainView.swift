@@ -116,8 +116,14 @@ extension MainView{
             Image(.menu)
                 .resizable()
                 .aspectRatio(contentMode: .fit)
-                .frame(width: 40, height: 40)
-                .padding(20)
+                .frame(width: 20, height: 20)
+                .padding()
+                .background(.ultraThinMaterial)
+                .cornerRadius(10)
+                .padding(.trailing,30)
+                .padding(.top,5)
+                .shadow(radius: 10)
+
         }
     }
     private var menuView:some View{

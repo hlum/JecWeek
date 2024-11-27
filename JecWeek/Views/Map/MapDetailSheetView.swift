@@ -15,45 +15,54 @@ struct MapDetailSheetView: View {
     @State var lookAroundScene:MKLookAroundScene?
     var placeData:JsonDataModel
     var body: some View {
-        VStack{
-            HStack{
-                VStack(alignment:.leading){
-                    Text(placeData.buildingName)
-                        .font(.title)
-                        .fontWeight(.bold)
-                        .padding(.horizontal)
-                    Text(placeData.adress)
-                        .font(.system(size: 20))
-                        .fontWeight(.light)
-                        .padding(.horizontal)
-                }
-                Spacer()
-                
-                Button {
-                    getDirection()
-                    presentationMode.wrappedValue.dismiss()
-                } label: {
-                    Text("Direction")
-                        .font(.system(size: 20))
-                        .fontWeight(.bold)
-                        .padding()
-                        .background(.blue)
-                        .cornerRadius(10)
-                        .foregroundColor(.white)
-                        .padding(.trailing)
-                }
-
-            }
-            if let _ = lookAroundScene{
-                LookAroundPreview(scene: $lookAroundScene)
-                    .frame(height: 300)
-                    .cornerRadius(20)
-                    .padding(.horizontal)
+        ScrollView(showsIndicators:false){
+            VStack{
+                HStack(alignment:.center){
+                    VStack(alignment:.leading){
+                        Text(placeData.buildingName)
+                            .font(.title)
+                            .fontWeight(.bold)
+                            
+                        Text(placeData.adress)
+                            .multilineTextAlignment(.leading)
+                            .font(.system(size: 13))
+                            .fontWeight(.light)
+                            .textSelection(.enabled)
+                            
+                    }
+                    .padding(.vertical)
                     
+                    Spacer()
+                    
+                    Button {
+                        getDirection()
+                        presentationMode.wrappedValue.dismiss()
+                    } label: {
+                        Text("Direction")
+                            .font(.system(size: 20))
+                            .fontWeight(.bold)
+                            .padding()
+                            .background(.blue)
+                            .cornerRadius(10)
+                            .foregroundColor(.white)
+                            .padding(.trailing)
+                    }
+
+                }
+                .padding(.horizontal)
+                
+                if let _ = lookAroundScene{
+                    LookAroundPreview(scene: $lookAroundScene)
+                        .frame(height: 300)
+                        .cornerRadius(20)
+                        .padding(.horizontal)
+                        
+                }
             }
-        }
-        .task {
-            await fetchLookAroundView()
+            .padding(.top)
+            .task {
+                await fetchLookAroundView()
+            }
         }
     }
 }
