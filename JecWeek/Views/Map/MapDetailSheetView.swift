@@ -10,8 +10,7 @@ import MapKit
 
 
 struct MapDetailSheetView: View {
-    @Binding var userLocation:CLLocationCoordinate2D
-    @Binding var route:MKRoute?
+    var getDirection: ()->Void
     @Environment(\.presentationMode) var presentationMode
     @State var lookAroundScene:MKLookAroundScene?
     var placeData:JsonDataModel
@@ -62,33 +61,4 @@ extension MapDetailSheetView{
         lookAroundScene = try? await request.scene
         
     }
-}
-
-extension MapDetailSheetView{
-    private func getDirection(){
-        let request = MKDirections.Request()
-        let destinationCoordinate = CLLocationCoordinate2D(
-            latitude: placeData.coordinates.latitude,
-            longitude: placeData.coordinates.longitude
-        )
-        
-        request.destination = MKMapItem(
-            placemark: MKPlacemark(coordinate: destinationCoordinate)
-        )
-        
-        request.source = MKMapItem(
-            placemark: MKPlacemark(coordinate: userLocation)
-        )
-        
-        request.transportType = .walking
-        
-        Task {
-            do {
-                let directions = MKDirections(request: request)
-                let response = try await directions.calculate()
-                route = response.routes.first
-            } catch {
-                print("Error getting directions: \(error)")
-            }
-        }    }
 }

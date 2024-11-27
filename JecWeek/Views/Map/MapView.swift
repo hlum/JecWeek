@@ -147,7 +147,8 @@ struct MapView: View {
             }
             .sheet(item: $selectedPlace) { place in
                 if let place = selectedPlace{
-                    MapDetailSheetView(userLocation: $locationManager.userCoordinate, route: $route,
+                    MapDetailSheetView(
+                        getDirection:getDirections,
                         placeData: place
                     )
                         .presentationDetents([.medium])
