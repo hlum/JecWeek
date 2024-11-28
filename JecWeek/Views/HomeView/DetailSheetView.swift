@@ -115,7 +115,7 @@ extension DetailSheetView{
                 date: ISO8601DateFormatter()
                     .date(
                         from: "2024-11-14T00:00:00Z"
-                    ) ?? Date()
+                    ) ?? Date(), coordinates: Coordinates(latitude: 35.7016, longitude: 139.771)
             ),
         showDetailSheet: .constant(
             true

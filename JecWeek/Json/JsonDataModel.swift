@@ -7,20 +7,30 @@
 
 import Foundation
 
-struct JsonDataModel:Identifiable,Codable {
-    let id :String
-    let buildingNo:Int
-    let images:[String]
-    let buildingName:String
-    let adress : String
-    let date:Date
+import Foundation
+import CoreLocation
+
+struct JsonDataModel: Identifiable, Codable {
+    let id: String
+    let buildingNo: Int
+    let images: [String]
+    let buildingName: String
+    let adress: String
+    let date: Date
+    let coordinates: Coordinates
     
     enum CodingKeys: String, CodingKey {
         case id = "id"
         case buildingNo = "building_no"
         case buildingName = "building_name"
-        case date = "date"
         case adress = "adress"
+        case date = "date"
         case images = "images"
+        case coordinates = "coordinates"
     }
+}
+
+struct Coordinates: Codable {
+    let latitude: Double
+    let longitude: Double
 }
