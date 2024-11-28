@@ -6,8 +6,8 @@
         "adress": "東京都新宿区百人町１丁目２５−４",
         "date": "2024-11-14T00:00:00Z",
         "coordinates": {
-            "latitude": 35.698860,
-            "longitude": 139.697149
+            "latitude": 35.698165,
+            "longitude": 139.698105
         },
         "images": [
             "https://image.minkou.jp/images/school_img/21642/750_6831ae617fac95d66ee485fd6f84dcbf20fb30b7.jpg",
@@ -22,8 +22,8 @@
         "adress": "東京都新宿区北新宿１丁目４−２",
         "date": "2024-11-14T00:00:00Z",
         "coordinates": {
-            "latitude": 35.698560,
-            "longitude": 139.697249
+            "latitude": 35.698905,
+            "longitude": 139.696812
         },
         "images": [
             "https://www.ospn.jp/press/wp-content/uploads/2014/09/2006_10.jpg",
@@ -33,13 +33,13 @@
     },
     {
         "id": "4BFA54E3-C8F8-4310-8B73-2C614A3E9F6B",
-        "building_no": 7,
-        "building_name": "西館",
-        "adress": "東京都新宿区百人町１丁目２５−６",
+        "building_no": 6,
+        "building_name": "６号館",
+        "adress": "東京都新宿区百人町１丁目２４−１",
         "date": "2024-11-14T00:00:00Z",
         "coordinates": {
-            "latitude": 35.698760,
-            "longitude": 139.696949
+            "latitude": 35.69817,
+            "longitude": 139.69786
         },
         "images": [
             "https://example.com/image6.jpg",
@@ -49,13 +49,157 @@
     },
     {
         "id": "5D4F70A9-F08E-42BB-9B85-5E5D6E58E948",
-        "building_no": 8,
-        "building_name": "東館",
-        "adress": "東京都新宿区百人町１丁目２５−７",
+        "building_no": 5,
+        "building_name": "５号館",
+        "adress": "東京都新宿区百人町１丁目２３−２７",
         "date": "2024-11-14T00:00:00Z",
         "coordinates": {
-            "latitude": 35.698660,
-            "longitude": 139.697349
+            "latitude": 35.69891,
+            "longitude": 139.69741
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4F70A9-F0E-42BB-9B85-5E5D6E58E948",
+        "building_no": 2,
+        "building_name": "2号館",
+        "adress": "東京都新宿区百人町１丁目２４−２３",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.698751,
+            "longitude": 139.698008
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4F0A9-F08E-42BB-9B85-5E5D6E58E948",
+        "building_no": 9,
+        "building_name": "９号館",
+        "adress": "東京都新宿区百人町１丁目２４−２０",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.699025,
+            "longitude": 139.698035
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4F0A9-F08E-42BB-9B85-5D6E58E948",
+        "building_no": 10,
+        "building_name": "10号館",
+        "adress": "東京都新宿区百人町１丁目２４−１８",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.699294,
+            "longitude": 139.698064
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4F0A9-F08E-42BB-9B85-5DE58E948",
+        "building_no": 13,
+        "building_name": "13号館",
+        "adress": "東京都新宿区百人町１丁目１６",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.699968,
+            "longitude": 139.698123
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4F0A9-F8E-42BB-9B85-5DE8E48",
+        "building_no": 11,
+        "building_name": "11号館",
+        "adress": "東京都新宿区百人町１丁目１７−１８",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.700621,
+            "longitude": 139.698016
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4FA9-F8E-42BB-B85-5DE8E48",
+        "building_no": 8,
+        "building_name": "8号館",
+        "adress": "東京都新宿区西新宿７丁目６−３ 日本電子専門学校8号館",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.697411,
+            "longitude": 139.697773
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4FA9-F8E-42BB-B85-8E48",
+        "building_no": 12,
+        "building_name": "12号館",
+        "adress": "東京都新宿区西新宿７丁目２−１３",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.695311,
+            "longitude": 139.699095
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4FA9-F8E-42BB-B344285-8E48",
+        "building_no": 4,
+        "building_name": "4号館",
+        "adress": "東京都新宿区百人町１丁目２５−４",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.698509,
+            "longitude": 139.698012
+        },
+        "images": [
+            "https://example.com/image9.jpg",
+            "https://example.com/image10.jpg",
+            "https://example.com/image11.jpg"
+        ]
+    },
+    {
+        "id": "5D4FA9-F8E-42BB-B34428adf5-8E48",
+        "building_no": 3,
+        "building_name": "3号館",
+        "adress": "東京都新宿区百人町１丁目２５−１８ 日本電子専門学校 3号館",
+        "date": "2024-11-14T00:00:00Z",
+        "coordinates": {
+            "latitude": 35.698501,
+            "longitude": 139.698243
         },
         "images": [
             "https://example.com/image9.jpg",
@@ -63,4 +207,5 @@
             "https://example.com/image11.jpg"
         ]
     }
+
 ]

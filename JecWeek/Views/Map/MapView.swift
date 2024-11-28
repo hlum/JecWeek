@@ -92,7 +92,7 @@ final class LocationManager: NSObject, ObservableObject, CLLocationManagerDelega
             self.userCoordinate = newLocation.coordinate
             //try to notify the user location updated, and update the route
             NotificationCenter.default.post(name: Notification.Name("UserLocationUpdated"), object: nil)
-
+            
         }
     }
     
@@ -145,39 +145,43 @@ struct MapView: View {
                 .mapControlVisibility(.hidden)
                 .mapStyle(mapStyle)
                 
-                VStack{
-                    Spacer()
-                    HStack{
-                        showUserLocationButton
-                        Spacer()
-                        if route != nil{
-                            cancelDestinationButton
-                                .transition(.scale)
-                        }
-                    }
-                }
             }
-            .overlay(alignment: .top) {
-                if let route = route {
-                    Text("時間:\(formatTimeInterval(travelTime ?? 0))")
-                        .font(.title2)
-                        .bold()
-                        .padding(.horizontal)
-                        .frame(height: 65)
-                        .background(.thinMaterial)
-                        .foregroundStyle(.black)
-                        .cornerRadius(10)
-                        .padding(.horizontal)
-                        .shadow(radius: 10)
-                        .transition(
-                            .scale
+            .overlay(alignment: .bottom) {
+                if let _ = route{
+                    
+                    HStack{
+                        tripDetailView
+                        
+                        Spacer()
+                        cancelDestinationButton
+                        
+                    }
+                    .transition(
+                        .asymmetric(
+                            insertion: .move(edge: .bottom),
+                            removal: .move(edge: .bottom)
                         )
+                    )
+                    
+                    .frame(maxWidth: .infinity,alignment: .leading)
+                    .background(.ultraThinMaterial)
+                    .cornerRadius(20)
+                    .padding()
+                    .shadow(radius: 10)
+                    //for the transition to work
+                    .frame(maxHeight: .infinity,alignment:.bottom)
+                    
                 }
+                
+                
             }
             .overlay(alignment: .topLeading, content: {
-                mapStyleMenuView
+                VStack(alignment:.leading){
+                    mapStyleMenuView
+                    showUserLocationButton
+                }
             })
-            .sheet(isPresented: $showDetailView) {
+            .sheet(isPresented: $showDetailView){
                 if let selectedPlace = selectedPlace{
                     MapDetailSheetView(
                         getDirection:getDirections,
@@ -206,6 +210,53 @@ struct MapView: View {
 
 //MARK: - SubViews
 extension MapView{
+    private var tripDetailView:some View{
+        VStack(alignment:.leading,spacing: 0){
+            if let route = route{
+                Group{
+                    
+                    var formattedDistance:String{
+                        if route.distance < 1000{
+                            //m
+                            return "\(Int(route.distance))m"
+                        }else{
+                            //km
+                            return String(format: "%.2fkm", Double(route.distance) / 1000)
+                        }
+                    }
+                    Text(
+                        "\(formatTimeInterval(travelTime ?? 0))  (\(formattedDistance))"
+                    )
+                    .font(.title2)
+                    .bold()
+                    .padding(.top)
+                    
+                    if let travelTime = travelTime {
+                        let calendar = Calendar.current
+                        let minutes = Int(travelTime / 60) // If `travelTime` is in seconds
+                        let date = calendar.date(byAdding: .minute, value: minutes, to: Date())
+                        let formattedDate = date?.formatted(
+                            Date.FormatStyle()
+                                .hour(.twoDigits(amPM: .abbreviated))
+                                .minute(.twoDigits)
+                        )
+                        
+                        Text("到着：\(formattedDate ?? "Arrival Time Unavailable")")
+                        
+                        Text(route.steps.first?.instructions ?? "No instruction Available")
+                            .multilineTextAlignment(.leading)
+                            .font(.system(size: 25,weight: .light))
+                            .padding(.bottom)
+                        
+                    }
+                    
+                    
+                }
+                .padding(.leading)
+            }
+        }
+        
+    }
     private var cancelDestinationButton:some View{
         Button {
             withAnimation(.bouncy){
@@ -214,15 +265,14 @@ extension MapView{
                 selectedPlace = nil
             }
         } label: {
-            Text("キャンセル")
-                .font(.title2)
-                .frame(maxWidth: .infinity)
-                .frame(height:65)
-                .background(.red)
-                .foregroundStyle(.white)
-                .cornerRadius(10)
+            Image(systemName:"xmark.app")
+                .font(.system(size: 30))
                 .padding()
+                .background(.red)
+                .foregroundColor(.white)
+                .cornerRadius(20)
                 .shadow(radius: 10)
+                .padding(.trailing)
         }
     }
     private var mapStyleMenuView:some View{
@@ -244,7 +294,7 @@ extension MapView{
             moveCameraToUserLocation()
         } label: {
             Image(systemName:"paperplane.fill")
-                .font(.system(size: 30))
+                .font(.system(size: 20))
                 .padding()
                 .background(.white)
                 .foregroundColor(.blue)
@@ -269,11 +319,11 @@ extension MapView{
                 .resizable()
                 .scaledToFit()
                 .frame(
-                    width: isSelected ? 60 : 30,
-                    height: isSelected ? 60 : 30
+                    width: isSelected ? 30 : 20,
+                    height: isSelected ? 30 : 20
                 )
                 .foregroundColor(.white)
-                .padding(10)
+                .padding(4)
                 .background(
                     cardIsAlreadyPossessed ? (isSelected ? .blue : .green)
                     : .red
@@ -296,7 +346,7 @@ extension MapView{
                 .offset(y: isSelected ? -5 : -3)
                 .animation(.bouncy, value: isSelected)
             Text(cardFromJson.buildingName)
-                .font(isSelected ? .system(size: 15) : .system(size: 20))
+                .font(isSelected ? .system(size: 8) : .system(size: 10))
                 .fontWeight(
                     isSelected ? .bold : .regular
                 )
@@ -311,9 +361,9 @@ extension MapView{
         .shadow(color: isSelected ? .blue.opacity(0.5) : .clear, radius: 10, x: 0, y: 0)
         .onTapGesture {
             withAnimation(.bouncy) {
-                    selectedPlace = cardFromJson
-                    showDetailView = true
-
+                selectedPlace = cardFromJson
+                showDetailView = true
+                
             }
         }
         
@@ -330,7 +380,7 @@ extension MapView{
                     .background(.white)
                     .foregroundColor(.black)
                     .cornerRadius(10)
-                    
+                
                 Text("Map Style")
                     .font(.caption)
                     .foregroundStyle(.black)
