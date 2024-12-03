@@ -251,6 +251,7 @@ extension HomeView{
                             .padding(10)
                     } placeholder: {
                         ProgressView()
+                            .frame(width: 150, height: 150)
                     }
                 }
                 
