@@ -32,6 +32,7 @@ import SwiftUI
 //}
 
 final class HomeViewModel:ObservableObject{
+    @Published var userRoute:[String] = []
     @Published var cards:[JsonDataModel] = []//cards from json
     @Published var showAlert:Bool = false
     @Published var alertTitle:String = ""
@@ -41,10 +42,16 @@ final class HomeViewModel:ObservableObject{
     
     
     init() {
+        self.cards = JsonFileReader.shared.loadPlaceData() ?? []
         Task{
             await self.getUserTagFromFirestore()
+            await self.createNewRouteForUser()
+            await MainActor.run {
+                sortCards()
+            }
         }
-        self.cards = JsonFileReader.shared.loadPlaceData() ?? []
+        
+        // Reorder `cards` based on the order of IDs in `userRoute`
         nfcManager.onCardDataUpdate = { [weak self] data,error in
             if let error = error{
                 Task{
@@ -73,6 +80,26 @@ final class HomeViewModel:ObservableObject{
         }
     }
     
+    
+    func createNewRouteForUser() async{
+        guard let userId = AuthenticationManager.shared.getUserData()?.uid else{
+            return
+        }
+        
+        let routeAlreadyExist = await FirestoreManger.shared.checkIfTheRoutAlreadyExist(userId: userId)
+        if routeAlreadyExist{
+            Task{ @MainActor in
+                self.userRoute = await FirestoreManger.shared.getRoute(userId: userId)
+                sortCards()
+            }
+        }else{
+            if let newRoute = JsonFileReader().loadPlaceData()?.shuffled() {
+                let routeIds = newRoute.map { $0.id }
+                let routeData: [String: Any] = ["routeIds": routeIds]
+                FirestoreManger.shared.addNewRoute(userId: userId, route: routeData)
+            }
+        }
+    }
     
     func getUserData(){
         userData = AuthenticationManager.shared.getUserData()
@@ -107,7 +134,16 @@ final class HomeViewModel:ObservableObject{
         }
     }
                             
-                        
+    private func sortCards() {
+        self.cards.sort { card1, card2 in
+            guard let index1 = userRoute.firstIndex(of: card1.id),
+                  let index2 = userRoute.firstIndex(of: card2.id) else {
+                return false // Put unmatched cards at the end
+            }
+            return index1 < index2
+        }
+    }
+    
     
     func scan(){
         nfcManager.scan()

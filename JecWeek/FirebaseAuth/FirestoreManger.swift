@@ -35,9 +35,14 @@ struct DBUser:Codable{
 class FirestoreManger{
     static let shared = FirestoreManger()
     let userCollection = Firestore.firestore().collection("users")
+    let routeCollection = Firestore.firestore().collection("routes")
     
     private func userDocuments(userId:String) -> DocumentReference{
         userCollection.document(userId)
+    }
+    
+    private func routeDocuments(userId:String) -> DocumentReference{
+        routeCollection.document(userId)
     }
 
     private let encoder:Firestore.Encoder = {
@@ -92,6 +97,32 @@ class FirestoreManger{
     }
     
 
+    func checkIfTheRoutAlreadyExist(userId:String)async ->Bool{
+        do {
+            return try await routeDocuments(userId: userId).getDocument().exists
+        } catch {
+            print(error.localizedDescription)
+            return false
+        }
+    }
     
+    func addNewRoute(userId:String,route:[String:Any]){
+        routeDocuments(userId: userId).setData(route)
+    }
+    
+    func getRoute(userId:String)async -> [String]{
+        guard let snapshot = try? await routeDocuments(userId: userId).getDocument() else{
+            print("No route found")
+            return []
+        }
+        guard let data = snapshot.data() else{
+            print("can't get data")
+            return []
+        }
+        
+        let routes = data["routeIds"] as? [String] ?? []
+        return routes
+        
+    }
     
 }
