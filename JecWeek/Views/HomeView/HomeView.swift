@@ -149,8 +149,8 @@ struct HomeView: View {
                 .tabViewStyle(PageTabViewStyle(indexDisplayMode: .automatic))
                 
                 Spacer()
-                
                 scanButton
+                
             }
             
         }
@@ -191,27 +191,27 @@ extension HomeView{
                     .font(.system(size: 30, weight: .semibold))
                 Text("取得したタッグ")
                     .font(.system(size: 19, weight: .thin))
-                Button {
-                    Task{
-                        await vm.getUserTagFromFirestore()
-                        refreshedButtonAnimate.toggle()
-                    }
-                } label: {
-                    if #available(iOS 18, *){
-                        Image(systemName: "arrow.clockwise")
-                            .symbolEffect(.rotate, value: refreshedButtonAnimate)
-                            .font(.title)
-                            .tint(.black)
-                            .padding(.trailing,10)
-                    }else{
-                        Image(systemName: "arrow.clockwise")
-                            .font(.title)
-                            .padding(.trailing,10)
-                            .tint(.black)
-                    }
-                    
-                }
-                .frame(maxWidth: .infinity, alignment: .trailing)
+//                Button {
+//                    Task{
+//                        await vm.getUserTagFromFirestore()
+//                        refreshedButtonAnimate.toggle()
+//                    }
+//                } label: {
+//                    if #available(iOS 18, *){
+//                        Image(systemName: "arrow.clockwise")
+//                            .symbolEffect(.rotate, value: refreshedButtonAnimate)
+//                            .font(.title)
+//                            .tint(.black)
+//                            .padding(.trailing,10)
+//                    }else{
+//                        Image(systemName: "arrow.clockwise")
+//                            .font(.title)
+//                            .padding(.trailing,10)
+//                            .tint(.black)
+//                    }
+//                    
+//                }
+//                .frame(maxWidth: .infinity, alignment: .trailing)
             }
             .padding(20)
             Spacer()
@@ -222,8 +222,14 @@ extension HomeView{
         ZStack{
             RoundedRectangle(cornerRadius: 20)
                 .fill(.thinMaterial)
-                .frame(width:300,height:450)
-                .shadow(color: CustomColors.shadowColor,radius: 16,x:1,y:1)
+                .frame(maxWidth: .infinity)
+                .shadow(color: CustomColors.shadowColor,radius: 6,x:1,y:1)
+                .padding(.horizontal,40)
+                .padding(.vertical,30)
+                .padding(.top,10)
+                .padding(.bottom,40)
+            
+                
             
             VStack{
                 if !checkUserHasTag(tag: nfcData){
@@ -261,12 +267,22 @@ extension HomeView{
                         .font(.system(size: 16, weight: .medium))
                     
                 }
+                
                 .padding(.bottom,150)
                 
                 
                 
             }
+            .frame(maxWidth: .infinity,alignment: .center)
+            .frame(maxHeight: .infinity,alignment: .center)
+            .padding(.horizontal,40)
+            .padding(.vertical,20)
+            .padding(.top,30)
+            .padding(.bottom,40)
+
+
         }
+        
     }
     
     private var scanButton:some View{
@@ -288,7 +304,7 @@ extension HomeView{
             .background(.blue)
             .cornerRadius(10)
             .shadow(color: CustomColors.shadowColor,radius: 4,x:1,y:1)
-            .padding(.horizontal,10)
+            .padding(10)
         }
     }
 }

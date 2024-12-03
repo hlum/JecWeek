@@ -147,7 +147,7 @@
         "id": "5D4FA9-F8E-42BB-B85-5DE8E48",
         "building_no": 8,
         "building_name": "8号館",
-        "adress": "東京都新宿区西新宿７丁目６−３ 日本電子専門学校8号館",
+        "adress": "東京都新宿区西新宿７丁目６−３",
         "date": "2024-11-14T00:00:00Z",
         "coordinates": {
             "latitude": 35.697411,
@@ -195,7 +195,7 @@
         "id": "5D4FA9-F8E-42BB-B34428adf5-8E48",
         "building_no": 3,
         "building_name": "3号館",
-        "adress": "東京都新宿区百人町１丁目２５−１８ 日本電子専門学校 3号館",
+        "adress": "東京都新宿区百人町１丁目２５−１８",
         "date": "2024-11-14T00:00:00Z",
         "coordinates": {
             "latitude": 35.698501,
