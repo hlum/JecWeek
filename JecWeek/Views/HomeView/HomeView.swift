@@ -156,6 +156,7 @@ final class HomeViewModel:ObservableObject{
 
 //MARK: HomeView
 struct HomeView: View {
+    @StateObject var motionManager = MotionManager()
     @Binding var tabSelected:Int
     @State var refreshedButtonAnimate:Bool = false
     @State var selectedCardIndex:Int = 0
@@ -174,9 +175,17 @@ struct HomeView: View {
                         Button {
                             showDetailSheet.toggle()
                         } label: {
-                            cardView(for: vm.cards[index])
-                                .tag(index) // Set the tag to the current index
-                            
+                            VStack{
+                                cardView(for: vm.cards[index])
+                                    .tag(index) // Set the tag to the current index
+                            }
+                            .rotation3DEffect(Angle(degrees: motionManager.x * 5),axis: (x: 1,y: 0,z: 0))
+                            .rotation3DEffect(Angle(degrees: motionManager.y * 5), axis: (x: 0, y:1, z: 0))
+//                                .rotation3DEffect(
+//                                    Angle(degrees: motionManager.z * 10), // Tilt based on z
+//                                    axis: (x: 0, y: 0, z:1)
+//                                )
+//
                         }
                         .foregroundStyle(checkUserHasTag(tag: vm.cards[index]) ? Color.black : Color.gray)
                         .disabled(!checkUserHasTag(tag: vm.cards[index]))
@@ -188,12 +197,16 @@ struct HomeView: View {
                 scanButton
                 
             }
-            
+   
         }
         
         .onAppear{
+            motionManager.startGyroMotionSensor()
             //check the user is login or not
             vm.getUserData()
+        }
+        .onDisappear{
+            motionManager.stopGeyroMotionSensor()
         }
         .alert(isPresented: $vm.showAlert, content: {
             Alert(title: Text(vm.alertTitle))
@@ -257,7 +270,7 @@ extension HomeView{
     private func cardView(for nfcData:JsonDataModel)->some View{
         ZStack{
             RoundedRectangle(cornerRadius: 20)
-                .fill(.thinMaterial)
+                .fill(.white)
                 .frame(maxWidth: .infinity)
                 .shadow(color: CustomColors.shadowColor,radius: 6,x:1,y:1)
                 .padding(.horizontal,40)
